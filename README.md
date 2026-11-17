@@ -16,6 +16,20 @@ py -3.12 -m venv .venv
 
 # 3. Rodar os testes
 .venv\Scripts\python.exe -m pytest
+
+# 4. Estressar o motor do jogo com 10.000 partidas aleatórias
+.venv\Scripts\python.exe scripts\random_games.py --games 10000
+```
+
+## Usando o motor do jogo
+
+```python
+from snake.env import SnakeGame, UP, RIGHT, DOWN, LEFT
+
+game = SnakeGame(seed=42)        # mesma seed = mesma partida
+result = game.step(RIGHT)        # anda uma casa
+print(game)                      # H cabeça, o corpo, * fruta, # obstáculo
+print(game.get_state())          # estado completo (seção 8 da especificação)
 ```
 
 ## Estrutura

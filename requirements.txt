@@ -1,4 +1,6 @@
 # Dependências do projeto (equivale às "dependencies" do package.json).
 # Instale com: .venv\Scripts\python.exe -m pip install -r requirements.txt
-# Novas bibliotecas (numpy, pygame, torch...) entram aqui conforme as fases.
-pytest>=9.0
+# Novas bibliotecas (pygame, torch...) entram aqui conforme as fases.
+numpy>=2.0          # sorteios reproduzíveis por seed (Fase 1)
+matplotlib>=3.9     # gráficos para docs/media (Fase 1)
+pytest>=9.0         # testes automatizados
