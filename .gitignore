@@ -1,0 +1,22 @@
+# Ambiente virtual do Python (equivale ao node_modules/ do JavaScript:
+# é recriado a partir do requirements.txt, então não vai para o Git)
+.venv/
+
+# Arquivos gerados automaticamente pelo Python e pelo pytest
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Checkpoints e saídas pesadas de treino (as configs e métricas leves
+# de cada experimento podem ser versionadas individualmente depois)
+experiments/**/checkpoints/
+*.zip
+*.pt
+*.mp4
+
+# Editor / sistema
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

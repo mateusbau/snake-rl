@@ -1,0 +1,14 @@
+# Metadados do projeto e configuração de ferramentas
+# (papel parecido com o package.json do JavaScript).
+[project]
+name = "snake-rl"
+version = "0.1.0"
+description = "Agente de aprendizado por reforço que aprende a jogar Snake com obstáculos"
+requires-python = ">=3.12,<3.13"
+
+[tool.pytest.ini_options]
+# Onde o pytest procura os testes
+testpaths = ["tests"]
+# Coloca a raiz do projeto no caminho de import, para os testes
+# conseguirem fazer "import snake" e "import agents"
+pythonpath = ["."]
