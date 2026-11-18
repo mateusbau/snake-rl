@@ -18,3 +18,10 @@ Registro curto de decisões, tentativas e erros.
 - Saturação: em média só cabem 19 obstáculos (não 25) quando sorteados aleatoriamente.
 - Tamanho do crescimento por fruta (`growth_per_fruit`) ficou configurável, como pede
   a seção 6.2 da especificação; a frequência de obstáculos NÃO é configurável (seção 11).
+
+## 2026-11-17 — Fase 2
+
+- Versão jogável em pygame, com fila de comandos para curvas rápidas.
+- Replays como seed + ações (poucos KB), conferidos por re-simulação.
+- Velocidade padrão 7 passos/s (ajustável com --speed); a cobra espera o 1º toque.
+- Partidas humanas ficam em `replays/human/` e entram no Git (são dados do projeto).

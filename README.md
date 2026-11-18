@@ -17,7 +17,13 @@ py -3.12 -m venv .venv
 # 3. Rodar os testes
 .venv\Scripts\python.exe -m pytest
 
-# 4. Estressar o motor do jogo com 10.000 partidas aleatórias
+# 4. Jogar! (setas ou WASD; Espaço pausa; Esc sai)
+.venv\Scripts\python.exe scripts\play.py
+
+# 5. Ver as estatísticas das suas partidas gravadas
+.venv\Scripts\python.exe scripts\human_stats.py
+
+# 6. Estressar o motor do jogo com 10.000 partidas aleatórias
 .venv\Scripts\python.exe scripts\random_games.py --games 10000
 ```
 
@@ -40,5 +46,6 @@ print(game.get_state())          # estado completo (seção 8 da especificação
 | `agents/` | Agentes: aleatório, guloso, BFS, Q-learning, DQN, PPO |
 | `scripts/` | Jogar, treinar, avaliar, gerar vídeos |
 | `tests/` | Testes automatizados (pytest) |
+| `replays/` | Partidas gravadas (seed + ações), reproduzíveis |
 | `docs/` | Especificação, relatório de cada fase e diário |
 | `experiments/` | Um diretório por experimento de treino |
