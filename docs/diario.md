@@ -49,3 +49,18 @@ Registro curto de decisões, tentativas e erros.
   continuam reproduzíveis (`forbid_dead_ends=False` para replays sem essa chave) e
   aparecem separadas no `human_stats.py`. As 20 partidas oficiais da Fase 2 devem ser
   jogadas com a regra nova.
+
+## 2026-11-18 — Fase 2 concluída: referência humana
+
+- 20 partidas oficiais com a regra atual: **média 16,40, mediana 14, recorde 34**,
+  desvio padrão 8,64. Mortes: obstáculo 17, parede 3. Nenhuma vitória.
+- Definição: oficiais = as 20 primeiras partidas com a regra 4.5, em ordem
+  cronológica (decidido antes de olhar os números, para não escolher as melhores).
+  1 partida extra e as 24 da regra antiga ficam só como histórico.
+- A média com a regra antiga era 10,79. Prática e regra nova mudaram juntas, então
+  não dá para atribuir a diferença a uma só.
+- Erro padrão da média ≈ 1,9 (intervalo de ~95%: 12,5 a 20,3). Um agente só "bate a
+  M1" de forma convincente se ficar bem acima de 16,4.
+- Resumo salvo em `docs/human_baseline.json`; gráfico `fase2_humano.png`; GIF do
+  recorde `fase2_recorde_humano.gif`. M1 e M2 do `CLAUDE.md` atualizadas (16,4 / 34).
+

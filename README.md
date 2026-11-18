@@ -5,6 +5,11 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 > Em construção — o progresso de cada fase fica em `docs/fases/`.
 
+**Referência humana (Fase 2):** em 20 partidas, eu fiz **16,4 frutas de média**, com
+**recorde de 34**. É isso que a IA vai tentar bater.
+
+![Minha partida recorde](docs/media/fase2_recorde_humano.gif)
+
 ## Como rodar (Windows / PowerShell)
 
 ```powershell
@@ -20,7 +25,7 @@ py -3.12 -m venv .venv
 # 4. Jogar! (setas ou WASD; Espaço pausa; Esc sai)
 .venv\Scripts\python.exe scripts\play.py
 
-# 5. Ver as estatísticas das suas partidas gravadas
+# 5. Ver as estatísticas das suas partidas gravadas (e gerar o resumo das 20 oficiais)
 .venv\Scripts\python.exe scripts\human_stats.py
 
 # 6. Estressar o motor do jogo com 10.000 partidas aleatórias

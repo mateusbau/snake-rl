@@ -35,8 +35,8 @@ Observações úteis: os obstáculos nunca passam de 25 (não podem se encostar)
 
 ## Objetivo e métricas
 
-- **M1:** a média de frutas do agente supera a minha média humana.
-- **M2:** o agente supera o meu recorde (hoje 22 frutas) com frequência.
+- **M1:** a média de frutas do agente supera a minha média humana (16,4 nas 20 partidas oficiais da Fase 2).
+- **M2:** o agente supera o meu recorde (34 frutas, Fase 2) com frequência.
 - **M3:** zerar o jogo, medido como taxa de vitória.
 
 Métricas de toda avaliação: média e mediana de frutas, melhor partida, % do tabuleiro preenchido, causa da morte e taxa de vitória. **Toda avaliação usa o mesmo conjunto fixo de 1.000 sementes**, via `scripts/evaluate.py`.
