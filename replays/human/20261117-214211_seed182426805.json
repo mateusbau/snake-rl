@@ -1,0 +1,15 @@
+{
+  "seed": 182426805,
+  "actions": [null, null, 0, null, null, 1, null, null, 2, null, null, null, null, 3, 0, null, 3, 2, null, null, 1, 2, 3, null, null, 0, null, 1, 0, null, null, 3, null, 0, 1, null, null, 2, 1, null, 0, null, 3, null, 0, 3, null, null, null, 2, null, null, null, null, 1, null, null, null, null, null, 2, 3, null, null, 2, 3, null, null, null, 0, null, null, null, 3, 0, null, null, 1, null, null, null, null, 2, null, 1, null, null, 2, null, 1, 2, null, null, null, 3, null, 0, null, 1, 0, 3, null, 2, 3, 2, null, 3, null, null, null, 0, null, null, null, 3, 0, null, null, 1, null, null, 2, 1, null, null, null, 0, 1, 2, null, 1],
+  "config": {"height": 9, "width": 10, "num_fruits": 5, "initial_snake": [[4, 3], [4, 2], [4, 1]], "initial_direction": 1, "initial_fruits": [[2, 4], [2, 8], [4, 6], [6, 4], [6, 8]], "growth_per_fruit": 1, "safety_zone_length": 3, "max_steps_without_fruit": 200},
+  "player": "human",
+  "result": {
+    "fruits": 31,
+    "steps": 131,
+    "obstacles": 16,
+    "length": 34,
+    "board_filled": 0.3778,
+    "end_reason": "obstacle"
+  },
+  "created_at": "2026-11-17T21:41:52"
+}

@@ -44,6 +44,9 @@ class Replay:
             key: tuple(tuple(v) if isinstance(v, list) else v for v in value) if isinstance(value, list) else value
             for key, value in self.config.items()
         }
+        # Replays gravados antes da regra 4.5 não têm essa chave: foram jogados
+        # SEM a regra, então precisam ser reproduzidos sem ela.
+        cfg.setdefault("forbid_dead_ends", False)
         return GameConfig(**cfg)
 
 

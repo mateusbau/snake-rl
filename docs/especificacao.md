@@ -183,6 +183,37 @@ Não existe restrição especial que impeça a geração de obstáculos próximo
 
 Uma célula próxima à borda pode receber um obstáculo, desde que respeite todas as demais condições.
 
+## 4.5. Proibição de becos sem saída
+
+> **Decisão do projeto (2026-11-17), não presente na versão original desta especificação.** Esta regra **diverge do Snake original do Google**, que permite esses becos. Motivo: como a cobra não pode dar meia-volta, entrar numa célula com uma única saída é morte garantida. Em simulações com a regra antiga, 36,7% das partidas tiveram pelo menos um beco e 24,5% dos obstáculos nasceram criando um.
+
+Um beco sem saída é uma célula livre com apenas **uma** vizinha ortogonal livre. Exemplos (■ = obstáculo, x = beco, a linha/coluna externa é a parede):
+
+```
+┌──────────        ┌──────────        ┌──────────
+│ x ■ . .          │ ■ x ■ .          │ . . . .
+│ . . . .          │ . . . .          │ x ■ . .
+                                      │ . . . .
+```
+
+Um espaço de uma célula entre dois obstáculos **no meio do mapa** continua permitido, porque a célula tem saída pelos dois lados (é um corredor, não um beco):
+
+```
+│ . . . . .
+│ . ■ . ■ .   <- a célula entre os dois tem saída para cima e para baixo: OK
+│ . . . . .
+```
+
+**Regra:** uma célula candidata P só é válida para um novo obstáculo se, depois de colocar o obstáculo em P, toda célula livre do tabuleiro continuar com pelo menos 2 vizinhas ortogonais livres (cima, baixo, esquerda, direita).
+
+Definições:
+- Contam como **bloqueio** apenas o que é permanente: as bordas do tabuleiro e os obstáculos.
+- Cobra e frutas **não** contam como bloqueio (a cobra se move e as frutas são comidas). Para esta regra, as células delas são consideradas livres.
+- Na prática, só as vizinhas ortogonais de P mudam de contagem. Basta checar: para cada vizinha ortogonal Q de P que esteja dentro do tabuleiro e não seja obstáculo, Q precisa ter pelo menos 2 vizinhas livres sem contar P.
+- Consequência: nenhum obstáculo pode nascer encostado (ortogonalmente) numa célula de canto, nem deixar uma célula de espaço entre ele e outro obstáculo quando essa célula estiver encostada na parede.
+
+Todas as outras regras continuam iguais (ocupação, adjacência de 8 direções, região de segurança e sorteio uniforme entre as células que atendem **todas** as restrições). Se nenhuma célula for válida, a tentativa daquele marco é cancelada, como na seção 5.1.
+
 # 5. Procedimento de geração de obstáculos
 
 O processo de geração deve seguir esta sequência:
@@ -360,6 +391,11 @@ Os seguintes testes devem ser realizados:
 13. Verificar o comportamento quando não existem posições válidas para obstáculos.
 14. Verificar a reposição das frutas.
 15. Verificar todas as condições de derrota.
+16. Verificar que, com o tabuleiro sem obstáculos, as células vizinhas ortogonais dos cantos (ex.: (0,1) e (1,0)) são inválidas (seção 4.5).
+17. Verificar que, com um obstáculo em (0,0), a célula (0,2) é inválida (a célula (0,1) ficaria presa entre a parede e dois obstáculos).
+18. Verificar que, com um obstáculo em (4,4), a célula (4,6) é válida (corredor no meio do mapa).
+19. Verificar que a função que lista as posições válidas para obstáculos exclui exatamente as células que criariam beco.
+20. Teste de propriedade: em milhares de partidas aleatórias com sementes, depois de cada passo, nenhuma célula livre tem menos de 2 vizinhas livres, e todas as células livres continuam conectadas entre si (busca em largura considerando só paredes e obstáculos como bloqueio).
 
 Recomenda-se também implementar um modo de simulação sem interface gráfica, permitindo executar milhares de partidas e testar o comportamento do ambiente com maior eficiência.
 
@@ -396,6 +432,7 @@ Ao utilizar esta documentação como contexto, considere as seguintes orientaç�
 | Permanência | Permanente |
 | Adjacência entre obstáculos | Proibida nas 8 direções |
 | Distância de segurança da cabeça | 3 células à frente |
+| Becos sem saída | Proibidos: toda célula livre mantém ≥ 2 vizinhas ortogonais livres (seção 4.5; decisão do projeto, diverge do Google) |
 | Distribuição | Aleatória uniforme entre posições válidas |
 | Limite de obstáculos | Determinado pela disponibilidade de posições válidas |
 | Colisão com o corpo | Derrota |

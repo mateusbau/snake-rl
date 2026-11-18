@@ -59,6 +59,8 @@ WIN = "win"              # "zerou": não há célula livre para repor fruta
 
 # As 8 vizinhas de uma célula (inclui diagonais). Usado na regra 4.2.
 NEIGHBORS_8 = [(dr, dc) for dr in (-1, 0, 1) for dc in (-1, 0, 1) if (dr, dc) != (0, 0)]
+# As 4 vizinhas ortogonais (cima, baixo, esquerda, direita). Usado na regra 4.5.
+NEIGHBORS_4 = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
 
 @dataclass(frozen=True)
@@ -89,6 +91,10 @@ class GameConfig:
     safety_zone_length: int = 3
     # Limite de passos sem comer. None = sem limite.
     max_steps_without_fruit: int | None = 200
+    # Seção 4.5: proíbe obstáculos que criem "becos sem saída" (decisão NOSSA,
+    # o Snake do Google permite). Fica como opção só para reproduzir replays
+    # gravados antes da regra existir; o padrão é sempre True.
+    forbid_dead_ends: bool = True
 
 
 @dataclass
@@ -307,11 +313,15 @@ class SnakeGame:
         Uma célula é válida só se atender TODAS as regras ao mesmo tempo:
         - 4.1 está vazia (sem cobra, fruta ou obstáculo);
         - 4.2 nenhuma das 8 vizinhas é obstáculo;
-        - 4.3 não está nas 3 células à frente da cabeça.
+        - 4.3 não está nas 3 células à frente da cabeça;
+        - 4.5 não cria beco sem saída (se a regra estiver ligada).
         (4.4: bordas são permitidas, então não há regra extra para elas.)
         """
         obstacles = set(self.obstacles)
         protected = set(self.safety_zone())
+        # Conta as saídas de cada célula livre UMA vez, em vez de recontar para
+        # cada candidata (deixa a geração de obstáculos bem mais rápida).
+        exits = self._free_exits(obstacles) if self.config.forbid_dead_ends else None
         eligible = []
         for r, c in self.empty_cells():
             if (r, c) in protected:
@@ -319,8 +329,46 @@ class SnakeGame:
             touches_obstacle = any((r + dr, c + dc) in obstacles for dr, dc in NEIGHBORS_8)
             if touches_obstacle:
                 continue
+            if exits is not None and self._would_trap_neighbor((r, c), exits):
+                continue
             eligible.append((r, c))
         return eligible
+
+    def creates_dead_end(self, cell: Cell) -> bool:
+        """Um obstáculo em `cell` deixaria alguma célula livre com menos de 2 saídas? (seção 4.5)
+
+        Só bordas e obstáculos contam como bloqueio; cobra e frutas contam como
+        livres (elas saem do lugar). Colocar um obstáculo em P só muda a contagem
+        das vizinhas ortogonais de P, então basta olhar essas (no máximo 4).
+
+        Exemplo, com P = (0,1) num tabuleiro vazio:
+            x P . .      a vizinha (0,0) tinha 2 saídas: (0,1) e (1,0).
+            . . . .      Sem (0,1), sobra só (1,0) -> beco -> P é inválida.
+        """
+        return self._would_trap_neighbor(cell, self._free_exits(set(self.obstacles)))
+
+    def _free_exits(self, obstacles: set[Cell]) -> dict[Cell, int]:
+        """Para cada célula livre (não obstáculo), quantas vizinhas ortogonais livres ela tem.
+
+        Usa set para os obstáculos: procurar num set é instantâneo; numa lista, o
+        Python olha item por item (como Set.has() vs Array.includes() no JS).
+        """
+        exits = {}
+        for r in range(self.config.height):
+            for c in range(self.config.width):
+                if (r, c) in obstacles:
+                    continue
+                exits[(r, c)] = sum(
+                    self._in_bounds((r + dr, c + dc)) and (r + dr, c + dc) not in obstacles
+                    for dr, dc in NEIGHBORS_4
+                )
+        return exits
+
+    def _would_trap_neighbor(self, cell: Cell, exits: dict[Cell, int]) -> bool:
+        """Com um obstáculo em `cell`, cada vizinha livre Q perde 1 saída.
+        Se Q tinha só 2, ficaria com 1: beco."""
+        r, c = cell
+        return any(exits.get((r + dr, c + dc), 99) <= 2 for dr, dc in NEIGHBORS_4)
 
     def try_spawn_obstacle(self) -> Cell | None:
         """Tenta criar UM obstáculo numa posição válida sorteada (seção 5).

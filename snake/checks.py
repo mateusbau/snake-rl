@@ -7,7 +7,9 @@ Se alguma falhar, levanta AssertionError com uma mensagem explicando o quê.
 
 from __future__ import annotations
 
-from snake.env import NEIGHBORS_8, WIN, SnakeGame
+from functools import lru_cache
+
+from snake.env import NEIGHBORS_4, NEIGHBORS_8, WIN, SnakeGame
 
 
 def check_invariants(game: SnakeGame) -> None:
@@ -46,3 +48,31 @@ def check_invariants(game: SnakeGame) -> None:
     for r, c in game.obstacles:
         for dr, dc in NEIGHBORS_8:
             assert (r + dr, c + dc) not in obstacles, f"obstáculos vizinhos em {(r, c)}"
+
+    # Seção 4.5: nenhuma célula livre com menos de 2 saídas, e todas conectadas.
+    if cfg.forbid_dead_ends:
+        _check_free_cells(cfg.height, cfg.width, tuple(sorted(obstacles)))
+
+
+# @lru_cache guarda o resultado de chamadas anteriores ("memoização"). Como becos e
+# conectividade só dependem dos obstáculos — que mudam raramente —, a conta pesada
+# só roda de novo quando nasce um obstáculo. Se a checagem falhar, ela levanta erro
+# e nada é guardado.
+@lru_cache(maxsize=4096)
+def _check_free_cells(height: int, width: int, obstacles: tuple) -> None:
+    """Só paredes e obstáculos bloqueiam; cobra e frutas contam como livres."""
+    free = {(r, c) for r in range(height) for c in range(width)} - set(obstacles)
+    for r, c in free:
+        exits = sum((r + dr, c + dc) in free for dr, dc in NEIGHBORS_4)
+        assert exits >= 2, f"beco sem saída em {(r, c)}"
+    # BFS: começa numa célula livre e vai "pintando" as vizinhas alcançáveis.
+    start = min(free)
+    seen, frontier = {start}, [start]
+    while frontier:
+        r, c = frontier.pop()
+        for dr, dc in NEIGHBORS_4:
+            n = (r + dr, c + dc)
+            if n in free and n not in seen:
+                seen.add(n)
+                frontier.append(n)
+    assert len(seen) == len(free), "células livres isoladas"

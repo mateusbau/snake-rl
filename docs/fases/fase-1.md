@@ -120,6 +120,11 @@ teste nunca "falha por azar".
 
 Esses jogadores **não** são os baselines da Fase 3: servem só para estressar o motor.
 
+> **Atualização (regra 4.5, becos sem saída):** depois que a proibição de becos entrou,
+> as 10.000 partidas foram rodadas de novo, também sem nenhuma invariante quebrada.
+> `safe_random`: 7,46 frutas e 3,96 obstáculos de média (máx. 24 e 12). Saturação: 16,5
+> obstáculos em média (13–20). O gráfico acima já é a versão nova. Detalhes no `docs/diario.md`.
+
 ## O que deu errado e como foi resolvido
 
 1. **Invariante falhando no teste 13.** A checagem "no máximo 1 obstáculo por fruta

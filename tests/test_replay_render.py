@@ -69,3 +69,23 @@ def test_render_draws_expected_colors():
     r, g, b = color_at(game.snake[-1])
     assert b > r and b > g
     pygame.quit()
+
+
+def test_old_replays_reproduce_without_dead_end_rule(tmp_path):
+    # Replays gravados antes da regra 4.5 não têm a chave "forbid_dead_ends" no
+    # config. Eles precisam continuar reproduzindo, com a regra DESLIGADA.
+    from snake.env import GameConfig
+
+    for seed in range(30):
+        rng = np.random.default_rng(seed)
+        game = SnakeGame(GameConfig(forbid_dead_ends=False), seed=seed)
+        replay = rp.Replay(seed=seed, player="test")
+        while not game.game_over:
+            action = int(rng.choice(game.safe_directions() or [game.direction]))
+            replay.actions.append(action)
+            game.step(action)
+        replay.result = rp.result_of(game)
+        del replay.config["forbid_dead_ends"]  # como num arquivo antigo
+        path = tmp_path / f"old{seed}.json"
+        rp.save(replay, path)
+        assert str(rp.simulate(rp.load(path))) == str(game)

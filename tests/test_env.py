@@ -199,7 +199,7 @@ def test_11_obstacles_can_spawn_next_to_body_and_fruits():
     game.load_state(snake=[(4, 3), (4, 2), (4, 1)], direction=RIGHT, fruits=FAR_FRUITS)
     eligible = set(game.eligible_obstacle_cells())
     assert (5, 2) in eligible and (3, 1) in eligible   # colados no corpo
-    assert (1, 4) in eligible and (0, 1) in eligible   # colados em frutas
+    assert (1, 4) in eligible and (0, 3) in eligible   # colados em frutas
 
     # E isso de fato acontece nas partidas.
     next_to_body = next_to_fruit = 0
@@ -229,20 +229,28 @@ def test_12_obstacle_position_is_uniform():
 
 
 def test_13_no_valid_position_for_obstacle():
-    # 25 obstáculos nas casas (linha par, coluna par) "saturam" o tabuleiro:
-    # toda outra célula encosta em algum deles. Ninguém mais cabe.
-    saturated = [(r, c) for r in range(0, 9, 2) for c in range(0, 10, 2)]
-    fruits = [(1, 4), (1, 7), (3, 9), (5, 5), (7, 1)]
+    #   . . . . . . . . . .
+    #   . o o H * . . . . .     <- linha 1: a cobra vai comer a fruta (1,4)
+    # Primeiro enchemos o mapa de obstáculos até não caber mais nenhum (sorteando
+    # com as regras normais). Depois a cobra come a 1ª fruta — marco ímpar — e a
+    # tentativa tem que ser cancelada sem erro.
+    fruits = [(1, 4), (0, 0), (8, 9), (8, 0), (0, 9)]
+    scenario = dict(snake=[(1, 3), (1, 2), (1, 1)], direction=RIGHT, fruits=fruits)
     game = SnakeGame(seed=0)
-    game.load_state(snake=[(1, 3), (1, 2), (1, 1)], direction=RIGHT, fruits=fruits, obstacles=saturated)
+    game.load_state(**scenario)
+    while game.try_spawn_obstacle() is not None:
+        pass
+    saturated = list(game.obstacles)
+    game.load_state(**scenario, obstacles=saturated)
     assert game.eligible_obstacle_cells() == []
 
-    # Come a fruta (1,4): 1ª fruta = marco ímpar, mas não há onde pôr obstáculo.
+    # Ao comer, a cobra cresce (a cauda não sai), então nenhuma célula nova fica livre.
     result = game.step(RIGHT)
     assert result.ate_fruit and game.fruits_collected == 1
     assert result.new_obstacle is None
-    assert game.obstacles_generated == 25  # nunca passa de 25
-    assert not game.game_over               # o jogo continua normalmente
+    assert game.obstacles == saturated     # nenhum obstáculo novo
+    assert len(saturated) <= 25            # nunca passa de 25
+    assert not game.game_over              # o jogo continua normalmente
     check_invariants(game)
 
 
@@ -357,3 +365,120 @@ def test_same_seed_same_game():
 
     assert run(5) == run(5)
     assert run(5) != run(6)
+
+
+# ---------------------------------------------------------------------------
+# Seção 4.5: proibição de becos sem saída (regra nossa, não existe no Google)
+# ---------------------------------------------------------------------------
+# Estes testes usam funções auxiliares PRÓPRIAS (abaixo), escritas sem olhar a
+# implementação do jogo: assim um erro no jogo não "se esconde" num erro igual no teste.
+
+def free_cells(game, obstacles: set) -> set:
+    """Só bordas e obstáculos bloqueiam. Cobra e frutas contam como livres."""
+    return {(r, c) for r in range(game.config.height) for c in range(game.config.width)} - obstacles
+
+
+def has_dead_end(game, obstacles: set | None = None) -> bool:
+    free = free_cells(game, set(game.obstacles) if obstacles is None else obstacles)
+    for r, c in free:
+        exits = sum(n in free for n in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)))
+        if exits < 2:
+            return True
+    return False
+
+
+def all_free_connected(game) -> bool:
+    """BFS (busca em largura) a partir de uma célula livre: alcança todas?"""
+    free = free_cells(game, set(game.obstacles))
+    start = min(free)
+    seen, frontier = {start}, [start]
+    while frontier:
+        r, c = frontier.pop()
+        for nxt in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
+            if nxt in free and nxt not in seen:
+                seen.add(nxt)
+                frontier.append(nxt)
+    return len(seen) == len(free)
+
+
+def creates_dead_end_independent(game, cell) -> bool:
+    """Põe um obstáculo de mentira em `cell` e procura becos no mapa INTEIRO."""
+    return has_dead_end(game, set(game.obstacles) | {cell})
+
+
+def old_rules_eligible(game) -> set:
+    """Células válidas pelas regras 4.1 a 4.4 (sem a 4.5), calculadas à mão."""
+    obstacles = set(game.obstacles)
+    occupied = set(game.snake) | set(game.fruits) | obstacles
+    zone = set(game.safety_zone())
+    result = set()
+    for r in range(game.config.height):
+        for c in range(game.config.width):
+            near = any((r + dr, c + dc) in obstacles for dr, dc in NEIGHBORS_8)
+            if (r, c) not in occupied and (r, c) not in zone and not near:
+                result.add((r, c))
+    return result
+
+
+def test_16_cells_next_to_corners_are_invalid():
+    # Tabuleiro sem obstáculos. Um obstáculo em (0,1) deixaria o canto (0,0) com
+    # uma saída só, (1,0): um beco. O mesmo vale para os 4 cantos.
+    #   x # . .
+    #   . . . .
+    game = SnakeGame(seed=0)
+    eligible = set(game.eligible_obstacle_cells())
+    next_to_corners = [(0, 1), (1, 0), (0, 8), (1, 9), (7, 0), (8, 1), (8, 8), (7, 9)]
+    for cell in next_to_corners:
+        assert game.creates_dead_end(cell), cell
+        assert cell not in eligible, cell
+    # O próprio canto pode receber obstáculo (não deixa ninguém com 1 saída).
+    assert not game.creates_dead_end((0, 0)) and (0, 0) in eligible
+
+
+def test_17_gap_against_wall_is_invalid():
+    # Obstáculo em (0,0). Um novo em (0,2) prenderia (0,1) entre a parede e os dois:
+    #   # x # .
+    #   . . . .
+    game = SnakeGame(seed=0)
+    game.load_state(snake=[(4, 3), (4, 2), (4, 1)], direction=RIGHT,
+                    fruits=[(2, 4), (2, 8), (4, 6), (6, 4), (6, 8)], obstacles=[(0, 0)])
+    assert game.creates_dead_end((0, 2))
+    assert (0, 2) not in game.eligible_obstacle_cells()
+    # Um pouco mais longe já pode: (0,1) e (0,2) ficam com 2 saídas cada.
+    assert (0, 3) in game.eligible_obstacle_cells()
+
+
+def test_18_corridor_in_the_middle_is_valid():
+    # Obstáculo em (4,4). Um novo em (4,6) deixa (4,5) com saídas para cima e para baixo:
+    #   . . . . .
+    #   . # . # .     <- corredor, não beco
+    #   . . . . .
+    game = SnakeGame(seed=0)
+    game.load_state(snake=[(8, 3), (8, 2), (8, 1)], direction=RIGHT, fruits=FAR_FRUITS, obstacles=[(4, 4)])
+    assert not game.creates_dead_end((4, 6))
+    assert (4, 6) in game.eligible_obstacle_cells()
+
+
+def test_19_eligible_list_excludes_dead_end_cells():
+    # Em estados reais de partidas, a lista de válidas tem que ser exatamente:
+    # (válidas pelas regras 4.1-4.4) menos (as que criariam beco), com o beco
+    # conferido pela busca independente no mapa inteiro.
+    checked = 0
+    for game, _ in play_random_games(150, seed=1):
+        if game.game_over or game.steps % 5:
+            continue
+        expected = {cell for cell in old_rules_eligible(game) if not creates_dead_end_independent(game, cell)}
+        assert set(game.eligible_obstacle_cells()) == expected
+        checked += 1
+    assert checked > 1000
+
+
+def test_20_no_dead_ends_and_free_cells_connected():
+    # Propriedade: depois de CADA passo de milhares de partidas, nenhuma célula livre
+    # tem menos de 2 vizinhas livres, e todas as livres continuam conectadas.
+    games = 0
+    for game, result in play_random_games(2000, seed=2):
+        assert not has_dead_end(game)
+        assert all_free_connected(game)
+        games += result.game_over
+    assert games == 2000
