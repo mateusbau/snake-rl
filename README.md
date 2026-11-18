@@ -10,6 +10,18 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 ![Minha partida recorde](docs/media/fase2_recorde_humano.gif)
 
+**Agentes sem ML (Fase 3), 1.000 partidas cada nas mesmas sementes:**
+
+| Jogador | Média de frutas | Melhor | Vitórias |
+|---|---:|---:|---:|
+| Aleatório | 0,94 | 6 | 0% |
+| Aleatório seguro | 7,53 | 21 | 0% |
+| Eu (humano, 20 partidas) | 16,40 | 34 | 0% |
+| Guloso | 18,18 | 40 | 0% |
+| BFS + flood fill | **50,78** | 69 | **1,8%** |
+
+![Comparação dos agentes](docs/media/fase3_comparacao.png)
+
 ## Como rodar (Windows / PowerShell)
 
 ```powershell
@@ -30,6 +42,9 @@ py -3.12 -m venv .venv
 
 # 6. Estressar o motor do jogo com 10.000 partidas aleatórias
 .venv\Scripts\python.exe scripts\random_games.py --games 10000
+
+# 7. Avaliar os agentes nas 1.000 sementes oficiais (tabela + gráfico, ~80 s)
+.venv\Scripts\python.exe scripts\evaluate.py
 ```
 
 ## Usando o motor do jogo
@@ -48,7 +63,7 @@ print(game.get_state())          # estado completo (seção 8 da especificação
 | Pasta | Conteúdo |
 |---|---|
 | `snake/` | Motor do jogo e interface com o Gymnasium |
-| `agents/` | Agentes: aleatório, guloso, BFS, Q-learning, DQN, PPO |
+| `agents/` | Agentes: aleatório, guloso, BFS (prontos); Q-learning, DQN, PPO (próximas fases) |
 | `scripts/` | Jogar, treinar, avaliar, gerar vídeos |
 | `tests/` | Testes automatizados (pytest) |
 | `replays/` | Partidas gravadas (seed + ações), reproduzíveis |

@@ -64,3 +64,21 @@ Registro curto de decisões, tentativas e erros.
 - Resumo salvo em `docs/human_baseline.json`; gráfico `fase2_humano.png`; GIF do
   recorde `fase2_recorde_humano.gif`. M1 e M2 do `CLAUDE.md` atualizadas (16,4 / 34).
 
+## 2026-11-18 — Fase 3: baselines sem ML
+
+- 4 agentes (aleatório, aleatório seguro, guloso, BFS + flood fill) com a mesma
+  interface `reset(seed)` / `act(game)`. Eles só consultam `get_state()` e
+  `safe_directions()` (seção 9); um teste garante que não alteram o jogo nem o gerador.
+- `snake/evaluation.py`: 1.000 sementes oficiais derivadas da semente-mestra 20261118
+  (impressão digital `158f340ed1ca`). Nunca mudar.
+- Resultados (1.000 partidas): aleatório 0,94 · aleatório seguro 7,53 · guloso 18,18 ·
+  **BFS 50,78 (melhor 69, 1,8% de vitórias)**. Humano: 16,40 (20 partidas).
+- O guloso empata com o humano (dentro da margem); o BFS já bate M1 e M2. A régua
+  real para o RL passa a ser o BFS e a taxa de vitória.
+- BFS termina por tempo em 83% das partidas, quase sempre no fim do jogo (54,4 frutas
+  em média, ~10 células vazias): comer qualquer fruta restante o encurralaria, então
+  ele segue a cauda até o limite de 200 passos.
+- Tentativas para reduzir os "tempos" (100 sementes): (a) aceitar comer se o espaço
+  livre ≥ tamanho da cobra: sem efeito (51,3 → 51,4); (b) teste da cauda "com tempo":
+  pior (49,4 frutas, mortes de 15% → 52%). Mantida a versão original.
+
