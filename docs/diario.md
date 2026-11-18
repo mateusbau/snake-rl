@@ -99,3 +99,24 @@ Registro curto de decisões, tentativas e erros.
   - grid/full, 100 mil (63 s): 1,80 frutas, 836 mil estados (358 MB), 56% nunca vistos.
 - Conclusão: a tabela aprende, mas não generaliza. O resumo generaliza, mas é cego
   ao corpo (59% das mortes). Próximo passo: rede neural (DQN), Fase 5.
+
+
+## 2026-11-18 — Fase 5: DQN do zero (PyTorch)
+
+- PyTorch 2.14 com CUDA 12.6 (o `pip install torch` comum é só-CPU). Medição de 30 mil
+  passos: vetor/CPU 33 s, CNN/CPU 422 s, CNN/GPU 51 s. Redes pequenas na CPU (1 núcleo),
+  CNN na GPU.
+- `agents/dqn.py`: MLP (vetores), CNN (tabuleiro 4×9×10), replay buffer circular, rede-alvo,
+  erro de Huber, Adam. Nova observação `features_space` = 11 números + espaço livre e
+  alcance da cauda após cada jogada (flood fill) + tamanho.
+- Mesmos parâmetros nos 3 experimentos (gamma 0,95, lr 5e-4, buffer 100 mil, lote 128,
+  epsilon 1 → 0,02 em 30% do treino, seed 0); só muda a observação.
+- Resultados oficiais (1.000 sementes, `experiments/fase5_comparacao`):
+  - DQN 11 números (300 mil passos, 2,6 min): 18,43 = empate com guloso (18,18) e Q-tabela (17,42).
+  - DQN CNN (600 mil passos, 14 min GPU): 24,38, melhor 48.
+  - **DQN 18 números (1 milhão, 13 min): 40,99, melhor 67, 0,2% de vitórias (2 partidas);
+    passa de 34 frutas em 747 das 1.000 partidas.** Critério da fase atingido; M1 e M2 também.
+- Lição: com a mesma visão, rede = tabela. O ganho veio do que o agente enxerga.
+- Em aberto: as curvas atingem o pico quando o epsilon termina de cair (44,7 em 300 mil
+  passos) e depois oscilam ~40. Mantido o modelo final (escolher o melhor marco pelas
+  sementes de avaliação seria vazamento).

@@ -95,7 +95,63 @@ def feature_observation(game: SnakeGame) -> np.ndarray:
     return np.array(danger + one_hot + fruit, dtype=np.float32)
 
 
-OBSERVERS = {"grid": grid_observation, "features": feature_observation}
+SPACE_FEATURE_NAMES = FEATURE_NAMES + (
+    "space_straight", "space_right", "space_left",
+    "tail_straight", "tail_right", "tail_left",
+    "length",
+)
+
+
+def space_feature_observation(game: SnakeGame) -> np.ndarray:
+    """Os 11 números de antes + 7 que "enxergam" o corpo (Fase 5): 18 no total.
+
+    O resumo de 11 números só olha 1 casa em volta da cabeça, e por isso a cobra
+    entra em "bolsões" formados pelo próprio corpo e morre lá dentro (59% das
+    mortes na Fase 4). Os números novos olham mais longe, simulando cada jogada:
+
+    - space_X: depois de ir para X, quanto do espaço livre a cabeça ainda alcança
+      (0 a 1; é o flood fill da Fase 3). 0 também quando X mata na hora.
+    - tail_X: depois de ir para X, a cabeça ainda alcança a cauda? (0/1; o teste
+      de segurança do agente BFS.)
+    - length: tamanho da cobra / células do tabuleiro (0 a 1).
+
+    Exemplo: cobra num corredor que vira beco à direita -> space_right ≈ 0,05
+    (5% do espaço) e space_left ≈ 0,90. A rede aprende sozinha que 0,05 é ruim.
+
+    Importante: isso NÃO diz à rede o que fazer (o agente BFS decide com regras);
+    só entrega mais informação. Quem decide o que fazer com ela é o treino.
+    """
+    # Importado aqui dentro para o motor do jogo não depender da pasta agents/
+    # quando ninguém usa esta observação.
+    from agents.grid import flood_fill, tail_reachable
+
+    cfg = game.config
+    direction = game.direction
+    safe = set(game.safe_directions())
+    body = list(game.snake)
+    obstacles = set(game.obstacles)
+    fruits = set(game.fruits)
+    hr, hc = game.head
+    space, tail = [], []
+    for d in (direction, (direction + 1) % 4, (direction + 3) % 4):  # frente, direita, esquerda
+        if d not in safe:
+            space.append(0.0)
+            tail.append(0.0)
+            continue
+        dr, dc = DIRECTION_DELTAS[d]
+        new_head = (hr + dr, hc + dc)
+        # Se come, a cauda fica; senão, a cauda sai (mesma regra do motor).
+        new_body = [new_head] + (body if new_head in fruits else body[:-1])
+        free = cfg.height * cfg.width - len(new_body) - len(obstacles)
+        reach = flood_fill(new_head, obstacles | set(new_body[1:]), cfg.height, cfg.width)
+        space.append(min(1.0, reach / free) if free > 0 else 0.0)
+        tail.append(float(tail_reachable(new_body, obstacles, cfg.height, cfg.width)))
+    length = len(body) / (cfg.height * cfg.width)
+    return np.concatenate([feature_observation(game), np.array(space + tail + [length], dtype=np.float32)])
+
+
+OBSERVERS = {"grid": grid_observation, "features": feature_observation, "features_space": space_feature_observation}
+OBS_SIZES = {"features": len(FEATURE_NAMES), "features_space": len(SPACE_FEATURE_NAMES)}
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +184,7 @@ class SnakeEnv(gym.Env):
             shape = (len(CHANNELS), self.config.height, self.config.width)
             self.observation_space = spaces.Box(0, 1, shape=shape, dtype=np.uint8)
         else:
-            self.observation_space = spaces.Box(0, 1, shape=(len(FEATURE_NAMES),), dtype=np.float32)
+            self.observation_space = spaces.Box(0, 1, shape=(OBS_SIZES[obs_type],), dtype=np.float32)
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         # super().reset(seed=...) prepara self.np_random, o gerador do próprio ambiente.

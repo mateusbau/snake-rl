@@ -8,13 +8,18 @@ Como rodar (na raiz do projeto):
     .venv\\Scripts\\python.exe scripts\\evaluate.py --agents greedy bfs     # só alguns
     .venv\\Scripts\\python.exe scripts\\evaluate.py --games 100             # teste rápido (100 primeiras sementes)
     .venv\\Scripts\\python.exe scripts\\evaluate.py --board mini --out fase4_baselines_mini   # tabuleiro 5×5
+    .venv\\Scripts\\python.exe scripts\\evaluate.py --agents greedy bfs --model dqn=experiments\\fase5_dqn_space\\model.pt
+        --out fase5_comparacao --chart docs\\media\\fase5_comparacao.png --title "Agentes x humano x DQN"
 
 Saídas em experiments/<--out>/ (padrão: fase3_baselines):
     summary.json            métricas de cada agente + metadados da avaliação
     <agente>_games.csv      uma linha por partida (para gráficos)
     replays/<agente>_best.json   a melhor partida de cada agente (assista com play.py --replay)
     tabela.md               tabela comparativa (agentes + você)
-e o gráfico docs/media/fase3_comparacao.png.
+e o gráfico docs/media/fase3_comparacao.png (ou o de --chart).
+
+--model nome=caminho.pt carrega uma rede treinada (DQN, Fase 5) e a avalia como
+mais um agente, nas mesmas sementes.
 """
 
 import argparse
@@ -39,7 +44,19 @@ HUMAN_PATH = ROOT / "docs" / "human_baseline.json"
 CHART_PATH = ROOT / "docs" / "media" / "fase3_comparacao.png"
 REASON_NAMES = {"wall": "parede", "body": "corpo", "obstacle": "obstáculo", "timeout": "tempo", "win": "vitória"}
 LABELS = {"random": "Aleatório", "safe_random": "Aleatório seguro", "greedy": "Guloso",
-          "bfs": "BFS + flood fill", "human": "Eu (humano)"}
+          "bfs": "BFS + flood fill", "human": "Eu (humano)",
+          "dqn_11": "DQN, 11 números", "dqn_18": "DQN, 18 números", "dqn_cnn": "DQN, tabuleiro (CNN)"}
+
+
+def load_model(spec: str):
+    """"nome=caminho.pt" -> (nome, agente). O import fica aqui dentro porque o
+    PyTorch é pesado e os agentes da Fase 3 não precisam dele."""
+    from agents.dqn import DQNAgent
+
+    name, _, path = spec.partition("=")
+    agent = DQNAgent.load(ROOT / path)
+    agent.name = name
+    return name, agent
 
 
 def seeds_fingerprint(seeds: list[int]) -> str:
@@ -93,7 +110,7 @@ def markdown_table(summaries: dict[str, dict], human: dict | None) -> str:
     return "\n".join(rows) + "\n" + note
 
 
-def plot(summaries: dict[str, dict], human: dict | None, path: Path) -> None:
+def plot(summaries: dict[str, dict], human: dict | None, path: Path, title: str) -> None:
     """Barras horizontais: média de frutas de cada jogador (o humano em destaque)."""
     import matplotlib
 
@@ -117,7 +134,7 @@ def plot(summaries: dict[str, dict], human: dict | None, path: Path) -> None:
     ax.set_yticklabels([LABELS.get(e[0], e[0]) for e in entries], color=ink)
     ax.set_xlim(0, top * 1.3)
     ax.set_xlabel("frutas por partida (média)", color=muted)
-    ax.set_title("Agentes sem ML x humano", loc="left", color=ink, fontsize=12)
+    ax.set_title(title, loc="left", color=ink, fontsize=12)
     ax.grid(axis="x", color=grid, linewidth=0.8, zorder=0)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
@@ -137,6 +154,10 @@ def main() -> None:
     parser.add_argument("--out", default="fase3_baselines", help="pasta dentro de experiments/")
     parser.add_argument("--board", choices=list(BOARDS), default="full",
                         help="full = jogo oficial; mini = 5×5 de treino (sem humano nem gráfico)")
+    parser.add_argument("--model", nargs="*", default=[], metavar="NOME=CAMINHO",
+                        help="redes treinadas (.pt) para avaliar junto, ex.: dqn=experiments/x/model.pt")
+    parser.add_argument("--chart", default=str(CHART_PATH.relative_to(ROOT)), help="onde salvar o gráfico")
+    parser.add_argument("--title", default="Agentes sem ML x humano", help="título do gráfico")
     parser.add_argument("--no-chart", action="store_true")
     args = parser.parse_args()
 
@@ -146,10 +167,11 @@ def main() -> None:
     (out / "replays").mkdir(parents=True, exist_ok=True)
     print(f"Avaliando {len(seeds)} partidas por agente (sementes {seeds_fingerprint(seeds)})")
 
+    players = [(name, AGENTS[name]()) for name in args.agents] + [load_model(m) for m in args.model]
     summaries, seconds = {}, {}
-    for name in args.agents:
+    for name, agent in players:
         start = time.perf_counter()
-        results = evaluate(AGENTS[name](), seeds, config, progress=True)
+        results = evaluate(agent, seeds, config, progress=True)
         seconds[name] = round(time.perf_counter() - start, 1)
         summaries[name] = summarize(results)
         save_games_csv(results, out / f"{name}_games.csv")
@@ -173,8 +195,9 @@ def main() -> None:
         "agents": summaries,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     if official and not args.no_chart:
-        plot(summaries, human, CHART_PATH)
-        print(f"Gráfico: {CHART_PATH.relative_to(ROOT)}")
+        chart = ROOT / args.chart
+        plot(summaries, human, chart, args.title)
+        print(f"Gráfico: {chart.relative_to(ROOT)}")
     print("\n" + table)
     print(f"Resultados em {out.relative_to(ROOT)}")
 

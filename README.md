@@ -10,7 +10,7 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 ![Minha partida recorde](docs/media/fase2_recorde_humano.gif)
 
-**Agentes sem ML (Fase 3), 1.000 partidas cada nas mesmas sementes:**
+**Agentes (Fases 3 e 5), 1.000 partidas cada nas mesmas sementes:**
 
 | Jogador | Média de frutas | Melhor | Vitórias |
 |---|---:|---:|---:|
@@ -18,6 +18,7 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 | Aleatório seguro | 7,53 | 21 | 0% |
 | Eu (humano, 20 partidas) | 16,40 | 34 | 0% |
 | Guloso | 18,18 | 40 | 0% |
+| DQN, 18 números (Fase 5) | 40,99 | 67 | 0,2% |
 | BFS + flood fill | **50,78** | 69 | **1,8%** |
 
 ![Comparação dos agentes](docs/media/fase3_comparacao.png)
@@ -28,6 +29,15 @@ assim 56% das situações da avaliação são novas. Com um resumo de 11 número
 chega a 17,4 frutas de média. O próximo passo é uma rede neural (DQN).
 
 ![Q-learning: aprendizado e tamanho da tabela](docs/media/fase4_qlearning.png)
+
+**DQN em PyTorch (Fase 5).** Com o mesmo resumo de 11 números, a rede empata com a
+tabela (18,4). Com 7 números a mais sobre espaço livre e alcance da cauda, ela faz
+**41,0 frutas de média** (2,5× a minha), passa do meu recorde em 75% das partidas e
+zerou 2 das 1.000. Vendo o tabuleiro cru, uma rede convolucional (CNN) chega a 24,4.
+
+![DQN zerando o jogo](docs/media/fase5_dqn_vitoria.gif)
+
+![Comparação com o DQN](docs/media/fase5_comparacao.png)
 
 ## Como rodar (Windows / PowerShell)
 
@@ -55,6 +65,12 @@ py -3.12 -m venv .venv
 
 # 8. Treinar um Q-learning com tabela (Fase 4) no tabuleiro 5×5 (~10 s)
 .venv\Scripts\python.exe scripts\train_qlearning.py --board mini --obs features --episodes 20000 --out teste_q
+
+# 9. Treinar um DQN (Fase 5). Antes, instale o PyTorch com CUDA (veja requirements.txt). ~13 min
+.venv\Scripts\python.exe scripts\train_dqn.py --obs features_space --steps 1000000 --eval-every 100000 --out teste_dqn
+
+# 10. Avaliar a rede treinada junto com os outros agentes
+.venv\Scripts\python.exe scripts\evaluate.py --agents greedy bfs --model dqn=experiments/teste_dqn/model.pt --out teste_comparacao --no-chart
 ```
 
 ## Usando o motor do jogo
@@ -73,7 +89,7 @@ print(game.get_state())          # estado completo (seção 8 da especificação
 | Pasta | Conteúdo |
 |---|---|
 | `snake/` | Motor do jogo e interface com o Gymnasium |
-| `agents/` | Agentes: aleatório, guloso, BFS (prontos); Q-learning, DQN, PPO (próximas fases) |
+| `agents/` | Agentes: aleatório, guloso, BFS, Q-learning, DQN (prontos); PPO (próxima fase) |
 | `scripts/` | Jogar, treinar, avaliar, gerar vídeos |
 | `tests/` | Testes automatizados (pytest) |
 | `replays/` | Partidas gravadas (seed + ações), reproduzíveis |

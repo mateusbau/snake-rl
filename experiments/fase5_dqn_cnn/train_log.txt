@@ -1,0 +1,11 @@
+﻿Treinando DQN grid/full por 600,000 passos (cuda) -> experiments/fase5_dqn_cnn
+  passo         0: avaliação(100) 0.00 frutas (melhor 0) | 1 s
+  passo   100,000: avaliação(100) 13.23 frutas (melhor 24) | 102 s
+  passo   200,000: avaliação(100) 20.31 frutas (melhor 32) | 244 s
+  passo   300,000: avaliação(100) 24.87 frutas (melhor 45) | 403 s
+  passo   400,000: avaliação(100) 24.15 frutas (melhor 44) | 568 s
+  passo   500,000: avaliação(100) 23.80 frutas (melhor 37) | 720 s
+  passo   600,000: avaliação(100) 23.19 frutas (melhor 48) | 865 s
+Treino: 14.4 min. Avaliando nas 1000 sementes oficiais...
+Avaliação final: média 24.38 ± 0.42 | mediana 25 | melhor 48 | vitórias 0.0% | 1,532,452 pesos na rede
+Fim: body 54.0%, obstacle 32.3%, wall 13.7%

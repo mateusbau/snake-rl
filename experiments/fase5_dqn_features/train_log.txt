@@ -1,0 +1,11 @@
+Treinando DQN features/full por 300,000 passos (cpu) -> experiments/fase5_dqn_features
+  passo         0: avaliação(100) 0.00 frutas (melhor 0) | 0 s
+  passo    50,000: avaliação(100) 18.35 frutas (melhor 37) | 21 s
+  passo   100,000: avaliação(100) 18.04 frutas (melhor 36) | 48 s
+  passo   150,000: avaliação(100) 17.49 frutas (melhor 36) | 76 s
+  passo   200,000: avaliação(100) 18.67 frutas (melhor 37) | 103 s
+  passo   250,000: avaliação(100) 18.66 frutas (melhor 50) | 131 s
+  passo   300,000: avaliação(100) 18.03 frutas (melhor 35) | 159 s
+Treino: 2.6 min. Avaliando nas 1000 sementes oficiais...
+Avaliação final: média 18.43 ± 0.44 | mediana 18 | melhor 41 | vitórias 0.0% | 18,564 pesos na rede
+Fim: body 61.6%, obstacle 23.5%, wall 14.8%, timeout 0.1%

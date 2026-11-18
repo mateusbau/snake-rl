@@ -6,4 +6,8 @@ matplotlib>=3.9     # gráficos para docs/media (Fase 1)
 pygame>=2.6         # janela do jogo (Fase 2)
 pillow>=11.0        # GIFs a partir dos replays (Fase 2)
 gymnasium>=1.0      # interface padrão de RL: reset/step (Fase 4)
+# PyTorch (Fase 5): redes neurais. Para usar a placa de vídeo NVIDIA, instale ANTES
+# a versão com CUDA (o pip comum baixa a versão só-CPU):
+#   .venv\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu126
+torch>=2.5
 pytest>=9.0         # testes automatizados
