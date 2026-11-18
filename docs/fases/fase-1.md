@@ -14,6 +14,8 @@ O motor implementa todas as regras da especificação e as decisões do CLAUDE.m
 cada fruta ímpar, obstáculos sem encostar nas 8 direções e fora das 3 células à
 frente da cabeça, sorteio uniforme, meia-volta ignorada, limite de 200 passos sem
 comer, vitória quando não há onde repor fruta, e tudo reproduzível por seed.
+(Corrigido em 2026-11-18: vitória só quando cobra + obstáculos ocupam todas as
+células, sem fruta sobrando. Veja `SnakeGame.is_won()` e a nota da Fase 3.)
 
 **Decisão nova (confirmada nesta fase):** entrar na célula da cauda é permitido
 quando a cobra não cresce naquele passo, porque a cauda sai do lugar junto.

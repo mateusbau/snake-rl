@@ -120,3 +120,19 @@ Registro curto de decisões, tentativas e erros.
 - Em aberto: as curvas atingem o pico quando o epsilon termina de cair (44,7 em 300 mil
   passos) e depois oscilam ~40. Mantido o modelo final (escolher o melhor marco pelas
   sementes de avaliação seria vazamento).
+
+
+## 2026-11-18 — Correção da regra de vitória
+
+- Bug apontado pelo Mateus: o motor declarava vitória quando não havia célula vazia para
+  repor fruta, contando fruta como célula ocupada. Todas as vitórias no tabuleiro oficial
+  (18 do BFS, 2 do DQN) terminaram com 4 frutas sem comer. No 5×5 (1 fruta) não havia erro.
+- Regra nova: vitória ⇔ cobra + obstáculos ocupam todas as células (`SnakeGame.is_won()`),
+  checada no fim do passo. Sem célula vazia, não nasce fruta e a partida segue.
+- Testes primeiro (regra 2): o teste 14(c) antigo codificava o bug e foi corrigido; 3 testes
+  novos; `check_invariants` agora exige vitória ⇔ `is_won()`. 86 testes passam.
+- Reavaliação nas 1.000 sementes: **BFS 50,79 (0% vitórias, melhor 71)**, **DQN 18 números
+  41,00 (0%, melhor 69)**; demais agentes iguais. Nas 18 sementes das "vitórias" do BFS,
+  todas viram fim por tempo, algumas com mais frutas (até 71).
+- GIFs `*_vitoria.gif` trocados por `fase3_bfs_melhor.gif` e `fase5_dqn_melhor.gif`.
+  DQNs não retreinados (bônus de vitória raríssimo no treino).

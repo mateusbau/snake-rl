@@ -276,13 +276,60 @@ def test_14_fruit_replenishment():
     assert len(counts) == 90 - 3 - 1 - 4  # todas as células vazias apareceram
     assert chi2_statistic(list(counts.values())) < chi2_critical(len(counts) - 1)
 
-    # (c) Sem célula livre para repor = vitória ("zerou"). Tabuleiro 1x5:
-    #     o o H * *   -> come a fruta (0,3) e não sobra célula vazia.
-    tiny = GameConfig(height=1, width=5, num_fruits=2,
+    # (c) Sem célula vazia para repor: não nasce fruta nova (sem erro), mas a
+    #     partida CONTINUA enquanto houver fruta no tabuleiro. Tabuleiro 1x5:
+    #     o o H * *   -> come (0,3): sobra a fruta (0,4) e nenhuma célula vazia.
+    # (forbid_dead_ends=False: numa linha só, as pontas sempre seriam "becos".)
+    tiny = GameConfig(height=1, width=5, num_fruits=2, forbid_dead_ends=False,
                       initial_snake=((0, 2), (0, 1), (0, 0)), initial_fruits=((0, 3), (0, 4)))
     game = SnakeGame(tiny, seed=0)
     result = game.step(RIGHT)
+    assert result.ate_fruit and result.new_fruit is None
+    assert not result.game_over and game.fruits == [(0, 4)] and game.empty_cells() == []
+    check_invariants(game)
+    # (d) Come a última fruta: agora só há cobra -> vitória ("zerou").
+    result = game.step(RIGHT)
+    assert result.game_over and result.end_reason == WIN and game.is_won()
+
+
+# ---------------------------------------------------------------------------
+# Vitória ("zerar"): cobra + obstáculos ocupam TODAS as células (sem fruta e sem vazio)
+# ---------------------------------------------------------------------------
+TINY_1x5 = GameConfig(height=1, width=5, num_fruits=1,
+                      initial_snake=((0, 1), (0, 0)), initial_fruits=((0, 2),))
+
+
+def test_win_when_only_snake_and_obstacles_remain():
+    #   o o H * #   -> come (0,3): cobra 4 + obstáculo 1 = as 5 células
+    game = SnakeGame(TINY_1x5, seed=0)
+    game.load_state(snake=[(0, 2), (0, 1), (0, 0)], direction=RIGHT, fruits=[(0, 3)], obstacles=[(0, 4)])
+    assert not game.is_won()
+    result = game.step(RIGHT)
     assert result.game_over and result.end_reason == WIN
+    assert game.is_won() and game.fruits == [] and result.new_obstacle is None
+
+
+def test_not_won_with_fruit_left_and_no_empty_cell():
+    #   o H * * #   cobra 2 + 2 frutas + obstáculo 1 = 5 células, nenhuma vazia
+    game = SnakeGame(TINY_1x5, seed=0)
+    game.load_state(snake=[(0, 1), (0, 0)], direction=RIGHT, fruits=[(0, 2), (0, 3)], obstacles=[(0, 4)])
+    assert game.empty_cells() == [] and not game.is_won()
+    result = game.step(RIGHT)  # come (0,2); ainda sobra (0,3)
+    assert result.ate_fruit and not result.game_over and not game.is_won()
+    assert game.fruits == [(0, 3)]
+    result = game.step(RIGHT)  # come a última
+    assert result.end_reason == WIN
+
+
+def test_not_won_with_an_empty_cell():
+    #   o H . . *   há células vazias -> não é vitória (nem antes nem depois de andar)
+    game = SnakeGame(TINY_1x5, seed=0)
+    game.load_state(snake=[(0, 1), (0, 0)], direction=RIGHT, fruits=[(0, 4)])
+    assert not game.is_won()
+    result = game.step(RIGHT)
+    assert not result.game_over and not game.is_won()
+    # E um tabuleiro de verdade no começo também não.
+    assert not SnakeGame(seed=0).is_won()
 
 
 def test_15_all_defeat_conditions():

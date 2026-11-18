@@ -19,13 +19,13 @@ A especificação completa está em `docs/especificacao.md`. **Leia antes de qua
 
 | Ponto | Decisão |
 |---|---|
-| Vitória ("zerar") | Não existe célula livre para repor fruta |
+| Vitória ("zerar") | Cobra + obstáculos ocupam **todas** as células: nenhuma vazia e nenhuma fruta sobrando (`SnakeGame.is_won()`). Sem célula vazia para repor, não nasce fruta e a partida continua até a cobra comer as restantes (ou morrer). Corrigido em 2026-11-18; antes contava vitória com frutas sobrando |
 | Crescimento | +1 célula por fruta |
 | Comando de 180° | Ignorado; mantém a direção atual |
 | Limite de passos sem comer | Encerra a partida (configurável; padrão 200) |
 | Frutas iniciais | **Sempre fixas** em (linha, coluna): (2,4), (2,8), (4,6), (6,4), (6,8). Só as reposições são sorteadas |
 | Posição inicial | Linha 4, corpo nas colunas 1–2, cabeça na coluna 3, direção direita (índices a partir de 0). Deixar configurável |
-| Ordem dentro de um passo | Mover → checar colisão → comer → repor fruta → gerar obstáculo (se ímpar) |
+| Ordem dentro de um passo | Mover → checar colisão → comer → repor fruta (se houver célula vazia) → gerar obstáculo (se ímpar) → checar vitória |
 | Modos | Sem tela (treino rápido) e com tela em pygame (eu jogo e assisto ao agente) |
 | Aleatoriedade | Sempre por semente (seed), totalmente reproduzível |
 | Entrar na casa da cauda | Permitido se a cobra não cresce no passo (a cauda sai junto) |

@@ -2,7 +2,13 @@
 
 > **Status:** concluída. Quatro agentes "programados à mão" foram avaliados nas
 > mesmas 1.000 sementes e comparados com você. O melhor deles (BFS + flood fill)
-> faz **50,8 frutas de média** e **zera o jogo em 1,8% das partidas**.
+> faz **50,8 frutas de média**, mas ainda não zera o jogo (0% de vitórias).
+
+> **Correção (2026-11-18, depois da Fase 5):** a regra de vitória estava errada: o
+> motor declarava "zerou" quando não havia célula vazia para repor fruta, mesmo com
+> frutas ainda no tabuleiro. As 18 "vitórias" do BFS terminavam com 4 frutas sem
+> comer. Na regra correta (cobra + obstáculos ocupam todas as células), o BFS tem
+> **0% de vitórias**. Os números abaixo já estão corrigidos.
 
 ## O que foi feito
 
@@ -111,7 +117,7 @@ formato, e o `evaluate.py` vai avaliá-los sem mudar nada.
 .venv\Scripts\python.exe scripts\evaluate.py                       # os 4 agentes, 1.000 partidas cada (~80 s)
 .venv\Scripts\python.exe scripts\evaluate.py --agents greedy bfs   # só alguns
 .venv\Scripts\python.exe scripts\evaluate.py --games 100           # teste rápido
-.venv\Scripts\python.exe scripts\play.py --replay experiments\fase3_baselines\replays\bfs_best.json   # assistir à vitória
+.venv\Scripts\python.exe scripts\play.py --replay experiments\fase3_baselines\replays\bfs_best.json   # assistir à melhor partida
 .venv\Scripts\python.exe -m pytest tests\test_agents.py            # testes da fase
 ```
 
@@ -126,15 +132,17 @@ oficiais da Fase 2.
 | Aleatório seguro | 1000 | 7,53 ± 0,22 | 7 | 21 | 11,7% / 26,7% | 0% | corpo 52%, parede 33%, obstáculo 15% |
 | **Eu (humano)** | 20 | 16,40 ± 3,86 | 14 | 34 | 21,6% / 41,1% | 0% | obstáculo 85%, parede 15% |
 | Guloso | 1000 | 18,18 ± 0,42 | 18 | 40 | 23,5% / 47,8% | 0% | corpo 50%, obstáculo 41%, parede 9% |
-| **BFS + flood fill** | 1000 | **50,78 ± 0,74** | 53 | 69 | 59,8% / 80,0% | **1,8%** | tempo 83%, obstáculo 8%, corpo 6%, vitória 2%, parede 1% |
+| **BFS + flood fill** | 1000 | **50,79 ± 0,74** | 53 | 71 | 59,8% / 82,2% | 0% | tempo 84%, obstáculo 8%, corpo 6%, parede 1% |
 
 *± = 2 erros padrão (intervalo de ~95% para a média; veja o conceito 5 da Fase 2).*
 
 ![Comparação](../media/fase3_comparacao.png)
 
-### Uma vitória do BFS (69 frutas em 297 passos)
+### A melhor partida do BFS (71 frutas em 512 passos, quase zerando)
 
-![BFS zerando o jogo](../media/fase3_bfs_vitoria.gif)
+Terminou por tempo com 2 frutas ainda no tabuleiro: comer qualquer uma delas significava se encurralar.
+
+![BFS quase zerando o jogo](../media/fase3_bfs_melhor.gif)
 
 ### O que os números dizem
 
@@ -142,15 +150,16 @@ oficiais da Fase 2.
    dentro da sua margem de ±3,9. Ele morre quase sempre no próprio corpo ou em
    obstáculos (91%), porque não pensa no depois. Passou de 34 frutas (seu recorde)
    em só 17 das 1.000 partidas.
-2. **O BFS joga em outro nível:** 50,8 de média, acima de 34 em 884 das 1.000
-   partidas e **18 vitórias**. Isso mostra que o jogo é zerável e mede o tamanho do
-   desafio: com só 2 regras (menor caminho + não se encurralar), um programa
-   simples já ganha às vezes.
+2. **O BFS joga em outro nível:** 50,8 de média e acima de 34 em 884 das 1.000
+   partidas. Com só 2 regras (menor caminho + não se encurralar), um programa
+   simples chega a 71 frutas, mas nunca zera: as últimas frutas ficam em bolsões
+   (veja o item 3).
 3. **Por que o BFS termina por "tempo" (83%)?** Nessas partidas ele não está
    perdido: está no fim do jogo. Na média ele comeu 54,4 frutas e só restavam ~10
    células vazias. As frutas restantes estão em bolsões, e comer qualquer uma
    tornaria a cauda inalcançável. Então ele dá voltas seguindo a cauda até estourar
    o limite de 200 passos sem comer. Jogar esse final é o desafio da Fase 7.
+   (Na regra corrigida, 84% das partidas terminam assim.)
 4. **Por que o BFS ainda morre em obstáculo (8%)?** Ele não sabe onde vai nascer o
    próximo obstáculo. Um obstáculo novo pode fechar o caminho até a cauda depois que
    ele já se comprometeu, e aí não sobra direção segura.
@@ -159,7 +168,7 @@ oficiais da Fase 2.
 
 - **M1** (média acima de 16,4) e **M2** (passar de 34 com frequência) do CLAUDE.md
   já são batidas por um programa sem ML. Para o RL ser interessante, a régua real
-  passa a ser o **BFS (50,8)** e a **taxa de vitória (1,8%)**.
+  passa a ser o **BFS (50,8)** e a **taxa de vitória**, que ainda é 0% para todos.
 - O critério da Fase 5 ("o DQN supera o guloso") significa média acima de 18,2.
   O BFS fica como o adversário a ser batido nas Fases 6 e 7.
 
@@ -179,5 +188,8 @@ oficiais da Fase 2.
 2. **Testes escritos às pressas.** Dois testes do BFS começaram com desenhos de
    tabuleiro confusos e uma asserção sem efeito (`... or True`). Reescrevi antes de
    rodar, com o desenho conferido célula por célula.
-3. **GIF grande.** A vitória tem 298 quadros: o GIF ficou com 3,5 MB. Com
-   `--scale 0.45` caiu para 2,9 MB.
+3. **GIF grande.** A melhor partida tem 513 quadros. Com `--scale 0.4` e
+   `--speed 15`, o GIF ficou com 4,9 MB.
+4. **Regra de vitória errada (descoberta depois da Fase 5).** Veja a nota no topo.
+   O motor ganhou `SnakeGame.is_won()` e testes para os três casos (só cobra +
+   obstáculos; sem célula vazia mas com fruta; com célula vazia).

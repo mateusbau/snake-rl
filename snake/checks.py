@@ -33,9 +33,13 @@ def check_invariants(game: SnakeGame) -> None:
     expected_len = len(cfg.initial_snake) + cfg.growth_per_fruit * game.fruits_collected - game.pending_growth
     assert len(snake) == expected_len, f"comprimento {len(snake)} != {expected_len}"
 
-    # Sempre 5 frutas, enquanto houver espaço (só falta fruta quando o jogo foi zerado).
-    if game.end_reason != WIN:
-        assert len(game.fruits) == cfg.num_fruits, f"{len(game.fruits)} frutas no mapa"
+    # Sempre 5 frutas. Menos que isso só no fim de jogo, quando não há célula vazia
+    # para repor (e então todas as células livres são frutas).
+    if len(game.fruits) != cfg.num_fruits:
+        assert len(game.fruits) < cfg.num_fruits and not game.empty_cells(), \
+            f"{len(game.fruits)} frutas no mapa com células vazias sobrando"
+    # Vitória se, e somente se, cobra + obstáculos cobrem o tabuleiro.
+    assert (game.end_reason == WIN) == game.is_won(), "vitória declarada com a regra errada"
 
     # Obstáculos: no máximo 1 por marco ímpar (1, 3, 5, ...), descontando os que
     # já vieram prontos num cenário montado com load_state.

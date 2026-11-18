@@ -1,9 +1,17 @@
 # Fase 5 — DQN do zero (PyTorch)
 
 **Critério de conclusão:** o DQN supera o agente guloso (18,18 frutas).
-**Resultado:** superou. Com 18 números de entrada, o DQN faz **40,99 frutas de média**
+**Resultado:** superou. Com 18 números de entrada, o DQN faz **41,00 frutas de média**
 nas 1.000 sementes oficiais: mais que o dobro do guloso e 2,5× a minha média. Ele
-passa do meu recorde (34) em 75% das partidas e ganhou 2 delas (0,2%).
+passa do meu recorde (34) em 75% das partidas, mas ainda não zera o jogo.
+
+> **Correção (2026-11-18):** a primeira versão deste relatório dizia "0,2% de vitórias"
+> (2 partidas). Era um bug da regra de vitória: o jogo declarava "zerou" quando não havia
+> célula vazia para repor fruta, mesmo com 4 frutas ainda no tabuleiro. Corrigida a regra
+> (cobra + obstáculos ocupam todas as células, `SnakeGame.is_won()`), as mesmas redes foram
+> reavaliadas: 0 vitórias, e as médias quase não mudam (40,99 → 41,00; BFS 50,78 → 50,79).
+> As redes NÃO foram retreinadas: o bônus de +10 por "vitória" no treino aconteceu em
+> pouquíssimas partidas, então o efeito no aprendizado é desprezível.
 
 ![Comparação dos agentes](../media/fase5_comparacao.png)
 
@@ -131,8 +139,8 @@ milhão de pesos e muito mais a aprender.
 .venv\Scripts\python.exe scripts\evaluate.py --agents random safe_random greedy bfs --model dqn_11=experiments/fase5_dqn_features/model.pt dqn_18=experiments/fase5_dqn_space/model.pt dqn_cnn=experiments/fase5_dqn_cnn/model.pt --out fase5_comparacao --chart docs/media/fase5_comparacao.png --title "Agentes sem ML x DQN x humano"
 .venv\Scripts\python.exe scripts\plot_dqn.py
 
-# Assistir à vitória do DQN
-.venv\Scripts\python.exe scripts\play.py --replay experiments\fase5_dqn_space\best_replay.json
+# Assistir à melhor partida do DQN
+.venv\Scripts\python.exe scripts\play.py --replay experiments\fase5_comparacao\replays\dqn_18_best.json
 ```
 
 Parâmetros comuns aos 3 experimentos: gamma 0,95; Adam lr 0,0005; buffer 100 mil; lote 128;
@@ -152,8 +160,8 @@ Todos nas mesmas 1.000 sementes oficiais (impressão digital `158f340ed1ca`), vi
 | Q-tabela, 11 números (Fase 4) | 17,42 | — | 46 | 0% | — | corpo 59% |
 | **DQN, 11 números** | 18,43 ± 0,44 | 18 | 41 | 0% | 20 | corpo 62%, obstáculo 24% |
 | **DQN, tabuleiro (CNN)** | 24,38 ± 0,42 | 25 | 48 | 0% | 59 | corpo 54%, obstáculo 32% |
-| **DQN, 18 números** | **40,99 ± 0,64** | 41 | 67 | **0,2%** | **747** | corpo 40%, obstáculo 30%, tempo 18% |
-| BFS + flood fill | 50,78 ± 0,74 | 53 | 69 | 1,8% | 884 | tempo 83% |
+| **DQN, 18 números** | **41,00 ± 0,64** | 41 | 69 | 0% | **747** | corpo 40%, obstáculo 30%, tempo 18% |
+| BFS + flood fill | 50,79 ± 0,74 | 53 | 71 | 0% | 884 | tempo 84% |
 
 | Experimento | Pesos na rede | Treino | Partidas de treino | Dispositivo |
 |---|---:|---:|---:|---|
@@ -163,10 +171,11 @@ Todos nas mesmas 1.000 sementes oficiais (impressão digital `158f340ed1ca`), vi
 
 ![Curvas de aprendizado](../media/fase5_dqn.png)
 
-A melhor partida do DQN de 18 números é uma **vitória**: 67 frutas em 408 passos, com 16
-obstáculos no mapa (seed 1421312602):
+A melhor partida do DQN de 18 números **quase zera**: 69 frutas em 665 passos, com 16
+obstáculos no mapa (seed 1421312602). Sobram 2 frutas e nenhuma célula vazia; a cobra
+fica dando voltas até o limite de tempo:
 
-![DQN zerando](../media/fase5_dqn_vitoria.gif)
+![DQN quase zerando](../media/fase5_dqn_melhor.gif)
 
 ### O que os números dizem
 
@@ -182,11 +191,11 @@ obstáculos no mapa (seed 1421312602):
    chegou a 24,4: acima do guloso e de mim, mas longe dos 18 números. Ela precisa
    descobrir sozinha o que o flood fill entrega pronto, com 80 vezes mais pesos, e não
    sabe qual ponta do corpo é a cauda (o canal "corpo" é igual em todas as células).
-4. **Ainda abaixo do BFS** (50,78), que planeja caminhos inteiros. O DQN decide olhando
+4. **Ainda abaixo do BFS** (50,79), que planeja caminhos inteiros. O DQN decide olhando
    1 passo à frente (mais o resumo de espaço). Fechar essa distância é o objetivo das
    Fases 6 e 7.
 5. **Metas do CLAUDE.md:** M1 (média > 16,4) foi atingida pelos 3 DQNs. M2 (passar de 34
-   com frequência) foi atingida pelo DQN de 18 números (75% das partidas). M3 ainda é 0,2%.
+   com frequência) foi atingida pelo DQN de 18 números (75% das partidas). M3 (zerar) ainda é 0% para todos os agentes, inclusive o BFS.
 
 ## O que deu errado e como foi resolvido
 
@@ -206,3 +215,6 @@ obstáculos no mapa (seed 1421312602):
   avaliação seria "colar na prova".
 - **Gráfico:** a legenda e os rótulos das linhas de referência se sobrepunham às curvas.
   Movi a legenda e pus os rótulos na ponta direita das linhas.
+- **Regra de vitória errada (descoberta depois da fase).** Veja a correção no topo. As
+  "vitórias" que eu tinha comemorado terminavam com 4 frutas sem comer. O motor ganhou
+  `is_won()`, testes para os 3 casos, e as avaliações e GIFs foram refeitos.

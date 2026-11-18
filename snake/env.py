@@ -55,7 +55,7 @@ WALL = "wall"            # bateu na borda do mapa
 BODY = "body"            # bateu no próprio corpo
 OBSTACLE = "obstacle"    # bateu num obstáculo
 TIMEOUT = "timeout"      # passou do limite de passos sem comer
-WIN = "win"              # "zerou": não há célula livre para repor fruta
+WIN = "win"              # "zerou": cobra + obstáculos ocupam todas as células (is_won)
 
 # As 8 vizinhas de uma célula (inclui diagonais). Usado na regra 4.2.
 NEIGHBORS_8 = [(dr, dc) for dr in (-1, 0, 1) for dc in (-1, 0, 1) if (dr, dc) != (0, 0)]
@@ -246,14 +246,17 @@ class SnakeGame:
             self.fruits_collected += 1
             self.steps_since_fruit = 0
 
-            new_fruit = self._spawn_fruit()
-            if new_fruit is None:
-                # Sem célula livre para repor a fruta = vitória (CLAUDE.md).
-                return self._end(result, WIN)
-            result.new_fruit = new_fruit
+            # Sem célula vazia, não nasce fruta nova (None), e isso NÃO encerra a
+            # partida: a cobra ainda precisa comer as frutas que sobraram.
+            result.new_fruit = self._spawn_fruit()
 
             if self.config.spawn_obstacles and self.fruits_collected % 2 == 1:
                 result.new_obstacle = self.try_spawn_obstacle()
+
+            # 6) Vitória: checada no fim do passo, com o tabuleiro já atualizado.
+            #    Só pode acontecer num passo em que a cobra come (é quando ela cresce).
+            if self.is_won():
+                return self._end(result, WIN)
         else:
             self.steps_since_fruit += 1
             limit = self.config.max_steps_without_fruit
@@ -261,6 +264,16 @@ class SnakeGame:
                 return self._end(result, TIMEOUT)
 
         return result
+
+    def is_won(self) -> bool:
+        """Zerou? Cobra + obstáculos ocupam TODAS as células do tabuleiro.
+
+        Ou seja: nenhuma célula vazia E nenhuma fruta sobrando. Exemplo no 9×10
+        (90 células) com 16 obstáculos: só é vitória com a cobra de 74 células.
+        Com 70 de cobra, 16 obstáculos e 4 frutas, ainda NÃO é (era o bug antigo).
+        """
+        cells = self.config.height * self.config.width
+        return len(self.snake) + len(self.obstacles) == cells
 
     def _end(self, result: StepResult, reason: str) -> StepResult:
         self.game_over = True

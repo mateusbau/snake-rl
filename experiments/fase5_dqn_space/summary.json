@@ -1,22 +1,22 @@
 {
   "games": 1000,
-  "fruits_mean": 40.99,
+  "fruits_mean": 41.0,
   "fruits_median": 41.0,
-  "fruits_best": 67,
-  "fruits_std": 10.04,
+  "fruits_best": 69,
+  "fruits_std": 10.05,
   "fruits_sem": 0.32,
   "board_filled_mean": 0.4888,
-  "board_filled_max": 0.7778,
-  "steps_mean": 250.6,
-  "win_rate": 0.002,
+  "board_filled_max": 0.8,
+  "steps_mean": 250.9,
+  "win_rate": 0.0,
   "end_reasons": {
     "body": 0.403,
-    "obstacle": 0.304,
-    "timeout": 0.175,
-    "wall": 0.116,
-    "win": 0.002
+    "obstacle": 0.305,
+    "timeout": 0.176,
+    "wall": 0.116
   },
   "train_seconds": 779.2,
   "train_episodes": 18861,
-  "parameters": 19460
+  "parameters": 19460,
+  "nota": "Reavaliado em 2026-11-18 com a regra de vitória corrigida (is_won). Antes: 40,99 frutas e 0,2% de vitórias."
 }

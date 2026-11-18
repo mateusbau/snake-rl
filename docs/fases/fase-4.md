@@ -192,7 +192,7 @@ Parâmetros iguais em todos: alpha 0,1, gamma 0,9, epsilon 1,0 → 0,05, seed 0.
 | Eu (humano, 20 partidas) | — | 16,40 | 34 | — | — | obstáculo 85% |
 | Q-learning · resumo de 11 | 20 mil partidas, 38 s | **17,42** | 46 | 256 | 0% | corpo 59%, obstáculo 26% |
 | Guloso | — | 18,18 | 40 | — | — | corpo 50%, obstáculo 41% |
-| BFS + flood fill | — | 50,78 | 69 | — | — | tempo 83% |
+| BFS + flood fill | — | 50,79 | 71 | — | — | tempo 84% |
 
 ![Curvas de aprendizado e tamanho da tabela](../media/fase4_qlearning.png)
 

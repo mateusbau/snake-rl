@@ -18,8 +18,8 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 | Aleatório seguro | 7,53 | 21 | 0% |
 | Eu (humano, 20 partidas) | 16,40 | 34 | 0% |
 | Guloso | 18,18 | 40 | 0% |
-| DQN, 18 números (Fase 5) | 40,99 | 67 | 0,2% |
-| BFS + flood fill | **50,78** | 69 | **1,8%** |
+| DQN, 18 números (Fase 5) | 41,00 | 69 | 0% |
+| BFS + flood fill | **50,79** | 71 | 0% |
 
 ![Comparação dos agentes](docs/media/fase3_comparacao.png)
 
@@ -32,10 +32,11 @@ chega a 17,4 frutas de média. O próximo passo é uma rede neural (DQN).
 
 **DQN em PyTorch (Fase 5).** Com o mesmo resumo de 11 números, a rede empata com a
 tabela (18,4). Com 7 números a mais sobre espaço livre e alcance da cauda, ela faz
-**41,0 frutas de média** (2,5× a minha), passa do meu recorde em 75% das partidas e
-zerou 2 das 1.000. Vendo o tabuleiro cru, uma rede convolucional (CNN) chega a 24,4.
+**41,0 frutas de média** (2,5× a minha) e passa do meu recorde em 75% das partidas.
+Vendo o tabuleiro cru, uma rede convolucional (CNN) chega a 24,4. Ninguém zerou o
+jogo ainda: a melhor partida do DQN chegou a 69 frutas, com 2 sobrando.
 
-![DQN zerando o jogo](docs/media/fase5_dqn_vitoria.gif)
+![DQN quase zerando o jogo](docs/media/fase5_dqn_melhor.gif)
 
 ![Comparação com o DQN](docs/media/fase5_comparacao.png)
 
