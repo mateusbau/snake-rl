@@ -30,6 +30,7 @@ A especificação completa está em `docs/especificacao.md`. **Leia antes de qua
 | Aleatoriedade | Sempre por semente (seed), totalmente reproduzível |
 | Entrar na casa da cauda | Permitido se a cobra não cresce no passo (a cauda sai junto) |
 | Becos sem saída (seção 4.5) | Proibidos: um obstáculo só nasce se toda célula livre continuar com ≥ 2 vizinhas ortogonais livres (só paredes e obstáculos bloqueiam). **Decisão nossa; diverge do Snake do Google.** Replays gravados antes dela são reproduzidos com `forbid_dead_ends=False` |
+| Tabuleiro de treino sem obstáculos (Fase 4) | `GameConfig.spawn_obstacles=False` só no `mini` (5×5) de `snake/boards.py`. O jogo oficial, avaliações e partidas humanas usam sempre `True` (a frequência de obstáculos da seção 11 não muda) |
 
 Observações úteis: os obstáculos nunca passam de 25 (não podem se encostar); na prática o mapa satura com 13–20 (média 16,5). Sozinhos, eles nunca isolam regiões do mapa nem criam becos; o que prende a cobra é o corpo somado aos obstáculos.
 

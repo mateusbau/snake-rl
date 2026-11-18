@@ -7,6 +7,7 @@ Como rodar (na raiz do projeto):
     .venv\\Scripts\\python.exe scripts\\evaluate.py                         # os 4 agentes da Fase 3
     .venv\\Scripts\\python.exe scripts\\evaluate.py --agents greedy bfs     # só alguns
     .venv\\Scripts\\python.exe scripts\\evaluate.py --games 100             # teste rápido (100 primeiras sementes)
+    .venv\\Scripts\\python.exe scripts\\evaluate.py --board mini --out fase4_baselines_mini   # tabuleiro 5×5
 
 Saídas em experiments/<--out>/ (padrão: fase3_baselines):
     summary.json            métricas de cada agente + metadados da avaliação
@@ -22,6 +23,7 @@ import hashlib
 import json
 import sys
 import time
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
@@ -30,6 +32,7 @@ sys.path.insert(0, str(ROOT))
 
 from agents.simple import AGENTS  # noqa: E402
 from snake import replay as rp  # noqa: E402
+from snake.boards import BOARDS  # noqa: E402
 from snake.evaluation import EVAL_MASTER_SEED, eval_seeds, evaluate, summarize  # noqa: E402
 
 HUMAN_PATH = ROOT / "docs" / "human_baseline.json"
@@ -52,10 +55,10 @@ def save_games_csv(results: list[dict], path: Path) -> None:
         writer.writerows(results)
 
 
-def save_best_replay(name: str, results: list[dict], path: Path) -> dict:
+def save_best_replay(name: str, results: list[dict], path: Path, config) -> dict:
     """Guarda a melhor partida (mais frutas; empate -> menos passos) como replay."""
     best = max(results, key=lambda r: (r["fruits"], -r["steps"]))
-    replay = rp.Replay(seed=best["seed"], actions=best["actions"], player=name)
+    replay = rp.Replay(seed=best["seed"], actions=best["actions"], config=asdict(config), player=name)
     replay.result = rp.result_of(rp.simulate(replay))  # re-simula: confere que reproduz
     rp.save(replay, path)
     return best
@@ -83,8 +86,10 @@ def markdown_table(summaries: dict[str, dict], human: dict | None) -> str:
             f"| {100 * s['board_filled_mean']:.1f}% / {100 * s['board_filled_max']:.1f}% "
             f"| {100 * s['win_rate']:.1f}% | {format_reasons(s['end_reasons'])} |"
         )
-    note = ("\n± = 2 erros padrão (intervalo de ~95% para a média). Agentes: as mesmas "
-            "1.000 sementes. Humano: 20 partidas oficiais da Fase 2 (outras sementes).\n")
+    note = "\n± = 2 erros padrão (intervalo de ~95% para a média). Agentes: as mesmas sementes oficiais."
+    if human:
+        note += " Humano: 20 partidas oficiais da Fase 2 (outras sementes)."
+    note += "\n"
     return "\n".join(rows) + "\n" + note
 
 
@@ -130,10 +135,13 @@ def main() -> None:
     parser.add_argument("--agents", nargs="+", default=list(AGENTS), choices=list(AGENTS))
     parser.add_argument("--games", type=int, default=1000, help="usa as N primeiras sementes oficiais")
     parser.add_argument("--out", default="fase3_baselines", help="pasta dentro de experiments/")
+    parser.add_argument("--board", choices=list(BOARDS), default="full",
+                        help="full = jogo oficial; mini = 5×5 de treino (sem humano nem gráfico)")
     parser.add_argument("--no-chart", action="store_true")
     args = parser.parse_args()
 
     seeds = eval_seeds(args.games)
+    config = BOARDS[args.board]
     out = ROOT / "experiments" / args.out
     (out / "replays").mkdir(parents=True, exist_ok=True)
     print(f"Avaliando {len(seeds)} partidas por agente (sementes {seeds_fingerprint(seeds)})")
@@ -141,27 +149,30 @@ def main() -> None:
     summaries, seconds = {}, {}
     for name in args.agents:
         start = time.perf_counter()
-        results = evaluate(AGENTS[name](), seeds, progress=True)
+        results = evaluate(AGENTS[name](), seeds, config, progress=True)
         seconds[name] = round(time.perf_counter() - start, 1)
         summaries[name] = summarize(results)
         save_games_csv(results, out / f"{name}_games.csv")
-        best = save_best_replay(name, results, out / "replays" / f"{name}_best.json")
+        best = save_best_replay(name, results, out / "replays" / f"{name}_best.json", config)
         s = summaries[name]
         print(f"{name:>12}: média {s['fruits_mean']:.2f} | mediana {s['fruits_median']:g} | melhor {s['fruits_best']} "
               f"(seed {best['seed']}) | vitórias {100 * s['win_rate']:.1f}% | {seconds[name]} s")
 
-    human = json.loads(HUMAN_PATH.read_text(encoding="utf-8")) if HUMAN_PATH.exists() else None
+    # A referência humana e o gráfico só fazem sentido no jogo oficial.
+    official = args.board == "full"
+    human = json.loads(HUMAN_PATH.read_text(encoding="utf-8")) if official and HUMAN_PATH.exists() else None
     table = markdown_table(summaries, human)
     (out / "tabela.md").write_text(table, encoding="utf-8")
     (out / "summary.json").write_text(json.dumps({
         "created_at": datetime.now().isoformat(timespec="seconds"),
+        "board": args.board,
         "eval_master_seed": EVAL_MASTER_SEED,
         "games": len(seeds),
         "seeds_fingerprint": seeds_fingerprint(seeds),
         "seconds": seconds,
         "agents": summaries,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
-    if not args.no_chart:
+    if official and not args.no_chart:
         plot(summaries, human, CHART_PATH)
         print(f"Gráfico: {CHART_PATH.relative_to(ROOT)}")
     print("\n" + table)

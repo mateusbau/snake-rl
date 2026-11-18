@@ -74,6 +74,9 @@ class GameConfig:
 
     Atenção: a frequência de obstáculos (1 a cada quantidade ímpar de frutas)
     NÃO é configurável de propósito — a especificação (seção 11) proíbe mudá-la.
+    A única exceção é `spawn_obstacles=False`, que desliga os obstáculos por
+    inteiro num tabuleiro de TREINO (o 5×5 da Fase 4, pedido no CLAUDE.md).
+    O jogo oficial, as avaliações e as partidas humanas usam sempre o padrão True.
     """
 
     height: int = 9
@@ -95,6 +98,8 @@ class GameConfig:
     # o Snake do Google permite). Fica como opção só para reproduzir replays
     # gravados antes da regra existir; o padrão é sempre True.
     forbid_dead_ends: bool = True
+    # Liga/desliga os obstáculos. False só em tabuleiros de treino (Fase 4).
+    spawn_obstacles: bool = True
 
 
 @dataclass
@@ -247,7 +252,7 @@ class SnakeGame:
                 return self._end(result, WIN)
             result.new_fruit = new_fruit
 
-            if self.fruits_collected % 2 == 1:
+            if self.config.spawn_obstacles and self.fruits_collected % 2 == 1:
                 result.new_obstacle = self.try_spawn_obstacle()
         else:
             self.steps_since_fruit += 1

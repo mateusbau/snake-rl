@@ -22,6 +22,13 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 ![Comparação dos agentes](docs/media/fase3_comparacao.png)
 
+**Primeiro RL (Fase 4): Q-learning com tabela.** Com o tabuleiro inteiro como estado,
+ele aprende no 5×5, mas no jogo oficial a tabela explode: 836 mil estados, e mesmo
+assim 56% das situações da avaliação são novas. Com um resumo de 11 números, ele
+chega a 17,4 frutas de média. O próximo passo é uma rede neural (DQN).
+
+![Q-learning: aprendizado e tamanho da tabela](docs/media/fase4_qlearning.png)
+
 ## Como rodar (Windows / PowerShell)
 
 ```powershell
@@ -45,6 +52,9 @@ py -3.12 -m venv .venv
 
 # 7. Avaliar os agentes nas 1.000 sementes oficiais (tabela + gráfico, ~80 s)
 .venv\Scripts\python.exe scripts\evaluate.py
+
+# 8. Treinar um Q-learning com tabela (Fase 4) no tabuleiro 5×5 (~10 s)
+.venv\Scripts\python.exe scripts\train_qlearning.py --board mini --obs features --episodes 20000 --out teste_q
 ```
 
 ## Usando o motor do jogo

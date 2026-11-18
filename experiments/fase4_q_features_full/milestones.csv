@@ -1,0 +1,5 @@
+episode,eval_fruits_mean,eval_fruits_best,eval_win_rate,unseen_rate,table_size
+0,0.89,4,0.0,1.0,0
+1000,9.17,19,0.0,0.0262,179
+10000,18.21,33,0.0,0.0,255
+20000,17.3,35,0.0,0.0,256

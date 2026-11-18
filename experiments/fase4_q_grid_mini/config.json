@@ -1,0 +1,54 @@
+{
+  "created_at": "2026-11-18T14:07:42",
+  "args": {
+    "board": "mini",
+    "obs": "grid",
+    "episodes": 1000000,
+    "alpha": 0.1,
+    "gamma": 0.9,
+    "eps_start": 1.0,
+    "eps_end": 0.05,
+    "eps_decay": 0.8,
+    "seed": 0,
+    "eval_games": 1000,
+    "out": "fase4_q_grid_mini"
+  },
+  "rewards": {
+    "fruit": 1.0,
+    "death": -1.0,
+    "win": 10.0,
+    "step": 0.0,
+    "timeout": 0.0
+  },
+  "game_config": {
+    "height": 5,
+    "width": 5,
+    "num_fruits": 1,
+    "initial_snake": [
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        0
+      ]
+    ],
+    "initial_direction": 1,
+    "initial_fruits": [
+      [
+        2,
+        4
+      ]
+    ],
+    "growth_per_fruit": 1,
+    "safety_zone_length": 3,
+    "max_steps_without_fruit": 50,
+    "forbid_dead_ends": true,
+    "spawn_obstacles": false
+  }
+}

@@ -82,3 +82,20 @@ Registro curto de decisões, tentativas e erros.
   livre ≥ tamanho da cobra: sem efeito (51,3 → 51,4); (b) teste da cauda "com tempo":
   pior (49,4 frutas, mortes de 15% → 52%). Mantida a versão original.
 
+
+## 2026-11-18 — Fase 4: Gymnasium + Q-learning com tabela
+
+- Hardware: Ryzen 5 5600X (6 núcleos), 16 GB, RTX 2060 SUPER 8 GB. A tabela usa só a CPU.
+- `snake/gym_env.py`: `SnakeEnv` (Gymnasium 1.4) com observação `grid` (4 camadas 0/1)
+  ou `features` (11 números), recompensas +1 fruta, −1 morte, +10 vitória, 0 por passo;
+  limite de tempo = `truncated` (não é morte). Passa no `check_env` oficial.
+- Mudança no motor, com testes primeiro: `GameConfig.spawn_obstacles` (padrão True),
+  só para o tabuleiro de treino `mini` (5×5, 1 fruta). Conflito resolvido entre a
+  seção 11 (não mudar a frequência) e o CLAUDE.md (5×5 sem obstáculos).
+- 4 experimentos, mesmos parâmetros (alpha 0,1, gamma 0,9, epsilon 1 → 0,05, seed 0):
+  - grid/mini, 1 milhão de partidas (316 s): 7,38 frutas, 380 mil estados, 3,8% nunca vistos.
+  - features/mini, 20 mil (11 s): 11,06 frutas (guloso: 10,71), 256 estados.
+  - features/full, 20 mil (38 s): 17,42 frutas (guloso 18,18; humano 16,40).
+  - grid/full, 100 mil (63 s): 1,80 frutas, 836 mil estados (358 MB), 56% nunca vistos.
+- Conclusão: a tabela aprende, mas não generaliza. O resumo generaliza, mas é cego
+  ao corpo (59% das mortes). Próximo passo: rede neural (DQN), Fase 5.

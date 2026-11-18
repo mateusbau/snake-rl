@@ -482,3 +482,37 @@ def test_20_no_dead_ends_and_free_cells_connected():
         assert all_free_connected(game)
         games += result.game_over
     assert games == 2000
+
+
+# ---------------------------------------------------------------------------
+# Tabuleiro de treino sem obstáculos (Fase 4, pedido no CLAUDE.md: "5×5 sem obstáculos")
+# ---------------------------------------------------------------------------
+MINI = GameConfig(
+    height=5, width=5, num_fruits=1,
+    initial_snake=((2, 2), (2, 1), (2, 0)), initial_direction=RIGHT,
+    initial_fruits=((2, 4),), max_steps_without_fruit=50,
+    spawn_obstacles=False,
+)
+
+
+def test_official_game_still_spawns_obstacles():
+    # O padrão continua sendo o jogo oficial: 1 obstáculo a cada quantidade ímpar.
+    assert GameConfig().spawn_obstacles is True
+    game = SnakeGame(seed=0)
+    game.step(None)          # (4,4)
+    game.step(None)          # (4,5)
+    result = game.step(None)  # (4,6) = fruta inicial -> 1ª fruta (ímpar)
+    assert result.ate_fruit and result.new_obstacle is not None
+
+
+def test_spawn_obstacles_false_never_creates_obstacles():
+    rng = np.random.default_rng(0)
+    fruits_total = 0
+    for seed in range(300):
+        game = SnakeGame(MINI, seed=seed)
+        while not game.game_over:
+            game.step(int(rng.choice(game.safe_directions() or [game.direction])))
+            check_invariants(game)
+        assert game.obstacles == [] and game.obstacles_generated == 0
+        fruits_total += game.fruits_collected
+    assert fruits_total > 300  # houve várias frutas ímpares (e nenhum obstáculo)
