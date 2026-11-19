@@ -1,0 +1,92 @@
+{
+  "created_at": "2026-11-18T21:17:26",
+  "args": {
+    "board": "full",
+    "obs": "features_space",
+    "masked": false,
+    "steps": 4000000,
+    "n_envs": 8,
+    "lr": 0.0003,
+    "gamma": 0.99,
+    "ent_coef": 0.01,
+    "seed": 0,
+    "log_every": 50000,
+    "eval_every": 500000,
+    "eval_games": 1000,
+    "out": "fase6_ppo"
+  },
+  "ppo": {
+    "learning_rate": 0.0003,
+    "n_steps": 512,
+    "batch_size": 512,
+    "n_epochs": 4,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "net_arch": {
+      "pi": [
+        128,
+        128
+      ],
+      "vf": [
+        128,
+        128
+      ]
+    }
+  },
+  "rewards": {
+    "fruit": 1.0,
+    "death": -1.0,
+    "win": 10.0,
+    "step": 0.0,
+    "timeout": 0.0
+  },
+  "game_config": {
+    "height": 9,
+    "width": 10,
+    "num_fruits": 5,
+    "initial_snake": [
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "initial_direction": 1,
+    "initial_fruits": [
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        8
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        8
+      ]
+    ],
+    "growth_per_fruit": 1,
+    "safety_zone_length": 3,
+    "max_steps_without_fruit": 200,
+    "forbid_dead_ends": true,
+    "spawn_obstacles": true
+  }
+}

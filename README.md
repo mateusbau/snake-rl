@@ -10,7 +10,7 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 ![Minha partida recorde](docs/media/fase2_recorde_humano.gif)
 
-**Agentes (Fases 3 e 5), 1.000 partidas cada nas mesmas sementes:**
+**Agentes (Fases 3 a 6), 1.000 partidas cada nas mesmas sementes:**
 
 | Jogador | Média de frutas | Melhor | Vitórias |
 |---|---:|---:|---:|
@@ -19,6 +19,7 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 | Eu (humano, 20 partidas) | 16,40 | 34 | 0% |
 | Guloso | 18,18 | 40 | 0% |
 | DQN, 18 números (Fase 5) | 41,00 | 69 | 0% |
+| PPO (Fase 6) | 46,59 | 67 | 0% |
 | BFS + flood fill | **50,79** | 71 | 0% |
 
 ![Comparação dos agentes](docs/media/fase3_comparacao.png)
@@ -39,6 +40,15 @@ jogo ainda: a melhor partida do DQN chegou a 69 frutas, com 2 sobrando.
 ![DQN quase zerando o jogo](docs/media/fase5_dqn_melhor.gif)
 
 ![Comparação com o DQN](docs/media/fase5_comparacao.png)
+
+**PPO com Stable-Baselines3 (Fase 6).** Jogando 8 partidas em paralelo, o PPO chega a
+**46,6 frutas de média** e passa do meu recorde em 85% das partidas: o melhor agente que
+aprendeu sozinho, a 4 frutas do BFS. Como o BFS, ele termina dando voltas no fim de jogo,
+sem arriscar as últimas frutas. Zerar o jogo é o desafio da Fase 7.
+
+![PPO quase zerando](docs/media/fase6_ppo_melhor.gif)
+
+![Comparação: Fases 3 a 6](docs/media/fase6_comparacao.png)
 
 ## Como rodar (Windows / PowerShell)
 
@@ -72,6 +82,9 @@ py -3.12 -m venv .venv
 
 # 10. Avaliar a rede treinada junto com os outros agentes
 .venv\Scripts\python.exe scripts\evaluate.py --agents greedy bfs --model dqn=experiments/teste_dqn/model.pt --out teste_comparacao --no-chart
+
+# 11. Treinar um PPO (Fase 6), 8 tabuleiros em paralelo (~15 min)
+.venv\Scripts\python.exe scripts\train_ppo.py --steps 4000000 --out teste_ppo
 ```
 
 ## Usando o motor do jogo
@@ -90,7 +103,7 @@ print(game.get_state())          # estado completo (seção 8 da especificação
 | Pasta | Conteúdo |
 |---|---|
 | `snake/` | Motor do jogo e interface com o Gymnasium |
-| `agents/` | Agentes: aleatório, guloso, BFS, Q-learning, DQN (prontos); PPO (próxima fase) |
+| `agents/` | Agentes: aleatório, guloso, BFS, Q-learning, DQN e PPO |
 | `scripts/` | Jogar, treinar, avaliar, gerar vídeos |
 | `tests/` | Testes automatizados (pytest) |
 | `replays/` | Partidas gravadas (seed + ações), reproduzíveis |

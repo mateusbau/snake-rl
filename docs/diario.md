@@ -136,3 +136,20 @@ Registro curto de decisões, tentativas e erros.
   todas viram fim por tempo, algumas com mais frutas (até 71).
 - GIFs `*_vitoria.gif` trocados por `fase3_bfs_melhor.gif` e `fase5_dqn_melhor.gif`.
   DQNs não retreinados (bônus de vitória raríssimo no treino).
+
+
+## 2026-11-18 — Fase 6: PPO (Stable-Baselines3)
+
+- SB3 + sb3-contrib 2.9.2. `agents/ppo.py` (PPOAgent), `scripts/train_ppo.py` (8 tabuleiros em
+  `SubprocVecEnv`, ~2.700 passos/s na CPU), observação de 18 números, rede 128×128, 4 milhões de passos.
+- Máscara: `action_mask(game)` em `gym_env.py`; com a cobra presa, libera tudo (evita 0/0). Teste antes.
+- Currículo (`snake/curriculum.py`): 5.162 situações de 300 partidas do BFS (sementes de treino),
+  50% das partidas de treino começam nelas. Avaliação sempre do início oficial.
+- Resultados (1.000 sementes, `experiments/fase6_comparacao`):
+  - **PPO: 46,59, mediana 49, melhor 67, > 34 em 851 partidas. M1 e M2 batidas.** 15 min.
+  - PPO + currículo: 45,84 (empate); o "degrau" veio em 2,5 M passos em vez de 3,5 M.
+  - MaskablePPO: 20,26. Travou em ~19 desde 500 mil passos; entropia 0,15 → 0,05.
+  - MaskablePPO com ent_coef 0,05: 31,67 e ainda subindo (entropia 0,2–0,3). Hipótese confirmada em parte.
+- Todos os bons agentes param no fim de jogo dando voltas (83–86% por tempo). Com a recompensa
+  atual, esperar custa 0 e arriscar custa −1. Zerar exige planejar: Fase 7.
+- Um treino foi encerrado pelo sistema por falta de memória; reiniciado com autorização.

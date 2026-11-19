@@ -1,0 +1,15 @@
+{
+  "seed": 687614482,
+  "actions": [1, 1, 2, 1, 0, 3, 0, 1, 1, 0, 0, 1, 2, 1, 2, 3, 2, 3, 2, 3, 3, 2, 1, 2, 2, 1, 0, 0, 1, 1, 0, 0, 3, 0, 3, 3, 2, 2, 3, 0, 3, 0, 0, 1, 0, 1, 0, 3, 3, 3, 2, 1, 2, 1, 0, 1, 1, 0, 3, 3, 3, 2, 3, 2, 3, 2, 3, 2, 2, 3, 2, 1, 2, 3, 2, 1, 1, 1, 0, 1, 0, 3, 3, 0, 1, 1, 0, 1, 2, 1, 2, 1, 0, 0, 1, 1, 2, 2, 3, 2, 1, 2, 3, 3, 3, 3, 3, 0, 0, 1, 2, 1, 0, 1, 0, 0, 3, 2, 3, 0, 3, 3, 0, 0, 1, 1, 0, 1, 0, 1, 1, 2, 1, 2, 3, 2, 1, 2, 2, 2, 2, 3, 2, 1, 1],
+  "config": {"height": 9, "width": 10, "num_fruits": 5, "initial_snake": [[4, 3], [4, 2], [4, 1]], "initial_direction": 1, "initial_fruits": [[2, 4], [2, 8], [4, 6], [6, 4], [6, 8]], "growth_per_fruit": 1, "safety_zone_length": 3, "max_steps_without_fruit": 200, "forbid_dead_ends": true, "spawn_obstacles": true},
+  "player": "safe_random",
+  "result": {
+    "fruits": 21,
+    "steps": 145,
+    "obstacles": 11,
+    "length": 24,
+    "board_filled": 0.2667,
+    "end_reason": "wall"
+  },
+  "created_at": "2026-11-18T23:04:01"
+}

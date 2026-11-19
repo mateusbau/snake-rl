@@ -1,0 +1,20 @@
+{
+  "games": 1000,
+  "fruits_mean": 45.84,
+  "fruits_median": 48.0,
+  "fruits_best": 67,
+  "fruits_std": 11.65,
+  "fruits_sem": 0.37,
+  "board_filled_mean": 0.5426,
+  "board_filled_max": 0.7778,
+  "steps_mean": 454.9,
+  "win_rate": 0.0,
+  "end_reasons": {
+    "timeout": 0.863,
+    "obstacle": 0.069,
+    "body": 0.055,
+    "wall": 0.013
+  },
+  "train_seconds": 858.2,
+  "train_episodes": 111752
+}

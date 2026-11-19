@@ -1,0 +1,13 @@
+﻿Treinando MaskablePPO features_space/full por 4,000,000 passos (8 tabuleiros em paralelo) -> experiments/fase6_maskppo
+  passo          0: avaliação(100) 3.91 frutas (melhor 9, vitórias 0%) | 0.2 min
+  passo    500,000: avaliação(100) 19.23 frutas (melhor 40, vitórias 0%) | 2.7 min
+  passo  1,000,000: avaliação(100) 18.63 frutas (melhor 37, vitórias 0%) | 5.1 min
+  passo  1,500,000: avaliação(100) 18.74 frutas (melhor 37, vitórias 0%) | 7.5 min
+  passo  2,000,000: avaliação(100) 20.45 frutas (melhor 40, vitórias 0%) | 9.9 min
+  passo  2,500,000: avaliação(100) 18.93 frutas (melhor 38, vitórias 0%) | 12.3 min
+  passo  3,000,000: avaliação(100) 19.55 frutas (melhor 38, vitórias 0%) | 14.7 min
+  passo  3,500,000: avaliação(100) 19.46 frutas (melhor 40, vitórias 0%) | 17.1 min
+  passo  4,000,000: avaliação(100) 19.75 frutas (melhor 40, vitórias 0%) | 19.5 min
+Treino: 19.5 min. Avaliando nas 1000 sementes oficiais...
+Avaliação final: média 20.26 ± 0.46 | mediana 20 | melhor 45 | vitórias 0.0%
+Fim: body 68.8%, obstacle 26.9%, wall 4.3%

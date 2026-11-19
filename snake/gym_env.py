@@ -150,6 +150,18 @@ def space_feature_observation(game: SnakeGame) -> np.ndarray:
     return np.concatenate([feature_observation(game), np.array(space + tail + [length], dtype=np.float32)])
 
 
+def action_mask(game: SnakeGame) -> np.ndarray:
+    """[cima, direita, baixo, esquerda]: True = não morre no próximo passo.
+
+    Presa (nenhuma segura) -> tudo True. Função solta (e não só método do ambiente)
+    para o agente da avaliação usar a MESMA máscara do treino.
+    """
+    safe = set(game.safe_directions())
+    if not safe:
+        return np.ones(len(DIRECTION_DELTAS), dtype=bool)
+    return np.array([d in safe for d in DIRECTION_DELTAS], dtype=bool)
+
+
 OBSERVERS = {"grid": grid_observation, "features": feature_observation, "features_space": space_feature_observation}
 OBS_SIZES = {"features": len(FEATURE_NAMES), "features_space": len(SPACE_FEATURE_NAMES)}
 
@@ -167,8 +179,13 @@ class SnakeEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array"], "render_fps": 10}
 
     def __init__(self, config: GameConfig | None = None, obs_type: str = "grid",
-                 rewards: Rewards | None = None, render_mode: str | None = None):
+                 rewards: Rewards | None = None, render_mode: str | None = None,
+                 start_states: list[dict] | None = None, start_prob: float = 0.0):
         super().__init__()
+        # Currículo (Fase 6, só no treino): com probabilidade start_prob, a partida
+        # começa numa situação avançada sorteada de start_states (snake/curriculum.py).
+        self.start_states = start_states or []
+        self.start_prob = start_prob
         if obs_type not in OBSERVERS:
             raise ValueError(f"obs_type deve ser um de {list(OBSERVERS)}")
         self.config = config or GameConfig()
@@ -193,6 +210,10 @@ class SnakeEnv(gym.Env):
         # Sem seed: sorteia uma, de forma reproduzível a partir do gerador do ambiente.
         game_seed = seed if seed is not None else int(self.np_random.integers(0, 2**31 - 1))
         self.game = SnakeGame(self.config, seed=game_seed)
+        if self.start_states and self.np_random.random() < self.start_prob:
+            start = self.start_states[int(self.np_random.integers(len(self.start_states)))]
+            # As frutas e obstáculos FUTUROS continuam sorteados pela seed da partida.
+            self.game.load_state(**start)
         return self.observe(self.game), self._info()
 
     def step(self, action):
@@ -215,9 +236,12 @@ class SnakeEnv(gym.Env):
         return self.observe(self.game), float(reward), terminated, truncated, self._info()
 
     def action_masks(self) -> np.ndarray:
-        """Quais ações não matam no próximo passo (MaskablePPO usa isso na Fase 6)."""
-        safe = set(self.game.safe_directions())
-        return np.array([d in safe for d in DIRECTION_DELTAS], dtype=bool)
+        """Quais ações não matam no próximo passo (MaskablePPO usa isso na Fase 6).
+
+        Se a cobra está presa (nenhuma ação segura), libera todas: uma máscara toda
+        False quebraria o MaskablePPO (probabilidades 0/0), e de qualquer jeito ela morre.
+        """
+        return action_mask(self.game)
 
     def _info(self) -> dict:
         return {

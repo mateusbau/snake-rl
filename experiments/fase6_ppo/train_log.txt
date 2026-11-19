@@ -1,0 +1,13 @@
+﻿Treinando PPO features_space/full por 4,000,000 passos (8 tabuleiros em paralelo) -> experiments/fase6_ppo
+  passo          0: avaliação(100) 1.09 frutas (melhor 3, vitórias 0%) | 0.0 min
+  passo    500,000: avaliação(100) 8.64 frutas (melhor 19, vitórias 0%) | 2.0 min
+  passo  1,000,000: avaliação(100) 11.07 frutas (melhor 24, vitórias 0%) | 4.0 min
+  passo  1,500,000: avaliação(100) 15.25 frutas (melhor 34, vitórias 0%) | 5.9 min
+  passo  2,000,000: avaliação(100) 17.77 frutas (melhor 36, vitórias 0%) | 7.8 min
+  passo  2,500,000: avaliação(100) 24.65 frutas (melhor 48, vitórias 0%) | 9.7 min
+  passo  3,000,000: avaliação(100) 29.89 frutas (melhor 54, vitórias 0%) | 11.5 min
+  passo  3,500,000: avaliação(100) 47.67 frutas (melhor 64, vitórias 0%) | 13.4 min
+  passo  4,000,000: avaliação(100) 46.15 frutas (melhor 65, vitórias 0%) | 15.1 min
+Treino: 15.1 min. Avaliando nas 1000 sementes oficiais...
+Avaliação final: média 46.59 ± 0.74 | mediana 49 | melhor 67 | vitórias 0.0%
+Fim: timeout 83.1%, body 10.3%, obstacle 3.7%, wall 2.9%

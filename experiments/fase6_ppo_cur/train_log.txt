@@ -1,0 +1,14 @@
+﻿Currículo: {'states': 5162, 'bfs_games': 300, 'fruits_min': 20, 'fruits_mean': 46.6, 'fruits_max': 67, 'seconds': 21.5}
+Treinando PPO features_space/full por 4,000,000 passos (8 tabuleiros em paralelo) -> experiments/fase6_ppo_cur
+  passo          0: avaliação(100) 1.09 frutas (melhor 3, vitórias 0%) | 0.0 min
+  passo    500,000: avaliação(100) 9.25 frutas (melhor 21, vitórias 0%) | 1.9 min
+  passo  1,000,000: avaliação(100) 10.64 frutas (melhor 25, vitórias 0%) | 3.8 min
+  passo  1,500,000: avaliação(100) 14.01 frutas (melhor 30, vitórias 0%) | 5.7 min
+  passo  2,000,000: avaliação(100) 17.06 frutas (melhor 33, vitórias 0%) | 7.5 min
+  passo  2,500,000: avaliação(100) 45.19 frutas (melhor 64, vitórias 0%) | 9.4 min
+  passo  3,000,000: avaliação(100) 45.94 frutas (melhor 63, vitórias 0%) | 11.1 min
+  passo  3,500,000: avaliação(100) 46.79 frutas (melhor 65, vitórias 0%) | 12.7 min
+  passo  4,000,000: avaliação(100) 41.61 frutas (melhor 65, vitórias 0%) | 14.3 min
+Treino: 14.3 min. Avaliando nas 1000 sementes oficiais...
+Avaliação final: média 45.84 ± 0.74 | mediana 48 | melhor 67 | vitórias 0.0%
+Fim: timeout 86.3%, obstacle 6.9%, body 5.5%, wall 1.3%

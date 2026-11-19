@@ -45,16 +45,24 @@ CHART_PATH = ROOT / "docs" / "media" / "fase3_comparacao.png"
 REASON_NAMES = {"wall": "parede", "body": "corpo", "obstacle": "obstáculo", "timeout": "tempo", "win": "vitória"}
 LABELS = {"random": "Aleatório", "safe_random": "Aleatório seguro", "greedy": "Guloso",
           "bfs": "BFS + flood fill", "human": "Eu (humano)",
-          "dqn_11": "DQN, 11 números", "dqn_18": "DQN, 18 números", "dqn_cnn": "DQN, tabuleiro (CNN)"}
+          "dqn_11": "DQN, 11 números", "dqn_18": "DQN, 18 números", "dqn_cnn": "DQN, tabuleiro (CNN)",
+          "ppo": "PPO", "maskppo": "MaskablePPO", "ppo_cur": "PPO + currículo",
+          "maskppo_ent": "MaskablePPO, mais exploração"}
 
 
 def load_model(spec: str):
-    """"nome=caminho.pt" -> (nome, agente). O import fica aqui dentro porque o
-    PyTorch é pesado e os agentes da Fase 3 não precisam dele."""
-    from agents.dqn import DQNAgent
-
+    """"nome=caminho" -> (nome, agente). .pt = DQN (Fase 5); .zip = PPO (Fase 6).
+    Os imports ficam aqui dentro porque PyTorch e SB3 são pesados e os agentes da
+    Fase 3 não precisam deles."""
     name, _, path = spec.partition("=")
-    agent = DQNAgent.load(ROOT / path)
+    if path.endswith(".zip"):
+        from agents.ppo import PPOAgent
+
+        agent = PPOAgent.load(ROOT / path)
+    else:
+        from agents.dqn import DQNAgent
+
+        agent = DQNAgent.load(ROOT / path)
     agent.name = name
     return name, agent
 
