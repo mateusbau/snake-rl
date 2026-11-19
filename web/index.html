@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snake RL — demo</title>
+  <meta name="description" content="Uma rede neural treinada com PPO jogando Snake com obstáculos, direto no navegador.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%234e7cf6%22/%3E%3Ccircle cx=%2211%22 cy=%225%22 r=%222%22 fill=%22%23e7471d%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <!-- onnxruntime-web: roda a rede (arquivo .onnx) no navegador, em WebAssembly. -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Snake RL</h1>
+    <p>Uma rede neural treinada com <strong>PPO</strong> jogando Snake com obstáculos que surgem
+      a cada fruta ímpar. Ela roda aqui, no seu navegador, sem servidor.</p>
+  </header>
+
+  <main>
+    <section class="board">
+      <canvas id="board" width="504" height="456" aria-label="Tabuleiro do jogo"></canvas>
+      <div class="hud">
+        <span><b id="fruits">0</b> frutas</span>
+        <span><b id="obstacles">0</b> obstáculos</span>
+        <span>recorde da sessão: <b id="best">0</b></span>
+      </div>
+      <p id="status" class="status">Carregando a rede…</p>
+    </section>
+
+    <aside class="panel">
+      <div class="tabs" role="tablist">
+        <button id="mode-ai" class="tab active" role="tab" aria-selected="true">Assistir à IA</button>
+        <button id="mode-human" class="tab" role="tab" aria-selected="false">Jogar eu mesmo</button>
+      </div>
+
+      <div id="ai-controls">
+        <label for="model">Rede (momento do treino)</label>
+        <select id="model">
+          <option value="final">Final — 4 milhões de passos</option>
+          <option value="1m">1 milhão de passos</option>
+          <option value="100k">100 mil passos</option>
+          <option value="10k">10 mil passos</option>
+          <option value="0">Sem treino (pesos aleatórios)</option>
+        </select>
+
+        <label for="speed">Velocidade: <span id="speed-label">12</span> passos/s</label>
+        <input id="speed" type="range" min="2" max="60" value="12">
+
+        <div class="row">
+          <button id="pause">Pausar</button>
+          <button id="restart">Nova partida</button>
+        </div>
+        <label class="check"><input id="auto" type="checkbox" checked> Começar outra ao terminar</label>
+
+        <h2>O que a rede está pensando</h2>
+        <div id="probs" class="probs"></div>
+        <h2>O que ela enxerga (alguns dos 18 números)</h2>
+        <table class="sees">
+          <thead><tr><th></th><th>frente</th><th>direita</th><th>esquerda</th></tr></thead>
+          <tbody>
+            <tr><th>perigo</th><td id="f0"></td><td id="f1"></td><td id="f2"></td></tr>
+            <tr><th>espaço livre</th><td id="f11"></td><td id="f12"></td><td id="f13"></td></tr>
+            <tr><th>alcança a cauda</th><td id="f14"></td><td id="f15"></td><td id="f16"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="human-controls" hidden>
+        <p>Setas ou <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> no teclado; no celular, deslize
+          o dedo no tabuleiro. <kbd>Espaço</kbd> pausa.</p>
+        <button id="restart-human">Nova partida</button>
+        <p class="note">Para comparar: nas 20 partidas oficiais, o autor fez <b>16,4</b> frutas de
+          média (recorde 34). A rede final faz <b>46,6</b>.</p>
+      </div>
+
+      <h2>Regras</h2>
+      <ul class="rules">
+        <li>Tabuleiro 9×10, sempre 5 frutas.</li>
+        <li>A cada fruta de número ímpar nasce um obstáculo permanente.</li>
+        <li>Bater na parede, no corpo ou num obstáculo encerra a partida, assim como passar 200 passos sem comer.</li>
+        <li>Zerar = cobra + obstáculos ocupando todas as 90 casas.</li>
+      </ul>
+    </aside>
+  </main>
+
+  <footer>
+    <a href="https://github.com/mateusbau/snake-rl">Código, treino e relatórios de cada fase no GitHub</a>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -172,3 +172,18 @@ Registro curto de decisões, tentativas e erros.
   - PPO com tempo esgotado = −1: 45,50 (sem efeito; a observação não mostra o relógio).
 - Avaliações com caça levam ~32 min/agente; rodadas em 3 processos e unidas com
   `scripts/merge_results.py`.
+
+
+## 2026-11-19 — Fase 8: portfólio (demo web, vídeo, README)
+
+- `scripts/export_onnx.py`: só o ator do PPO (18 → 128 → 128 → 4) vai para ONNX, 77 KB.
+  Diferença máxima para o PyTorch: 8,6e-6; mesma jogada em 100%. Exportados também os
+  checkpoints 0, 10 mil, 100 mil e 1 milhão (a demo deixa trocar).
+- Demo em `web/`: motor e os 18 números reescritos em JS, rede no onnxruntime-web (CDN), sem
+  servidor. Modos "assistir à IA" (com as probabilidades e o que ela vê) e "jogar eu mesmo".
+- Paridade JS x Python: gabaritos de 138 estados reais (`make_web_fixtures.py`), 6 testes no
+  Node, chamados também pelo pytest. O sorteio difere (mulberry32 x PCG64), as regras não.
+  No motor JS, a rede fez 47,65 em 300 partidas (Python: 46,59 nas 1.000 oficiais).
+- `scripts/make_video.py`: 7 cenas, 55,7 s, 1080×1080, pygame → pipe → ffmpeg (imageio-ffmpeg).
+  Tela dividida com a seed 2056: 2, 7, 14 e 58 frutas com 0, 100 mil, 1 milhão e 4 milhões de passos.
+- README reescrito como a história do projeto. Workflow do GitHub Pages pronto; falta ativar o Pages.

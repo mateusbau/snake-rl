@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "private": true,
+  "description": "Demo web do Snake RL (ES modules, sem dependências)"
+}

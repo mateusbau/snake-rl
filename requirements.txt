@@ -12,4 +12,7 @@ gymnasium>=1.0      # interface padrão de RL: reset/step (Fase 4)
 torch>=2.5
 stable-baselines3>=2.4   # PPO pronto (Fase 6)
 sb3-contrib>=2.4         # MaskablePPO: PPO com máscara de ações (Fase 6)
+onnx>=1.17           # exportar a rede para o navegador (Fase 8)
+onnxruntime>=1.20    # conferir o arquivo exportado (Fase 8)
+imageio-ffmpeg>=0.5  # traz o ffmpeg, que junta os quadros do vídeo em MP4 (Fase 8)
 pytest>=9.0         # testes automatizados
