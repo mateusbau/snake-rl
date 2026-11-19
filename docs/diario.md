@@ -153,3 +153,22 @@ Registro curto de decisões, tentativas e erros.
 - Todos os bons agentes param no fim de jogo dando voltas (83–86% por tempo). Com a recompensa
   atual, esperar custa 0 e arriscar custa −1. Zerar exige planejar: Fase 7.
 - Um treino foi encerrado pelo sistema por falta de memória; reiniciado com autorização.
+
+
+## 2026-11-19 — Fase 7: rede + busca, rumo a zerar
+
+- Paridade (`scripts/winnability.py`): o corpo alterna as cores de um tabuleiro de xadrez; zerar
+  exige |livres pretas − brancas| ≤ 1. No fim das partidas, isso vale em só 35,6% (BFS) e
+  35,7% (PPO). Teto: ~64% das partidas são impossíveis de zerar, para qualquer jogador.
+- `agents/search.py`: camadas empilháveis sobre qualquer agente. Segurança (veta jogada que
+  perde a cauda), caça (após 50 passos sem comer, DFS por caminhos mais longos até uma fruta
+  segura) e fim de jogo (sem célula vazia o jogo é determinístico: DFS exata até zerar ou
+  provar impossível). Simulador próprio, sem copiar o gerador aleatório (seria colar).
+- Resultados (1.000 sementes, `experiments/fase7_comparacao`):
+  - **BFS + fim de jogo: 1 vitória (0,1%)**, a primeira do projeto pela regra correta
+    (seed 1283531699: 72 frutas, cobra 75 + 15 obstáculos = 90).
+  - **BFS + caça + fim: 55,35** (melhor 72, 0,1%); **PPO + caça + fim: 54,91** (PPO puro: 46,59).
+  - PPO + segurança: 43,38 (pior; veto conservador demais).
+  - PPO com tempo esgotado = −1: 45,50 (sem efeito; a observação não mostra o relógio).
+- Avaliações com caça levam ~32 min/agente; rodadas em 3 processos e unidas com
+  `scripts/merge_results.py`.

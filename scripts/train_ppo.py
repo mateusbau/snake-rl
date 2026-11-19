@@ -121,6 +121,8 @@ def main() -> None:
     parser.add_argument("--start-prob", type=float, default=0.5, help="currículo: chance de começar avançada")
     parser.add_argument("--curriculum-games", type=int, default=300, help="currículo: partidas do BFS no banco")
     parser.add_argument("--min-fruits", type=int, default=20, help="currículo: só situações com >= N frutas")
+    parser.add_argument("--timeout-reward", type=float, default=Rewards().timeout,
+                        help="recompensa quando o tempo sem comer esgota (padrão 0; Fase 7 testa -1)")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--log-every", type=int, default=50_000)
     parser.add_argument("--eval-every", type=int, default=500_000)
@@ -132,6 +134,7 @@ def main() -> None:
     (out / "checkpoints").mkdir(parents=True, exist_ok=True)
     config = BOARDS[args.board]
     torch.set_num_threads(1)
+    rewards = Rewards(timeout=args.timeout_reward)
     overrides = {"learning_rate": args.lr, "gamma": args.gamma, "ent_coef": args.ent_coef}
     start_states, curriculum_info = None, None
     if args.curriculum:
@@ -148,13 +151,13 @@ def main() -> None:
         "args": vars(args),
         "curriculum": curriculum_info,
         "ppo": {**PPO_DEFAULTS, **overrides, "net_arch": NET_ARCH},
-        "rewards": asdict(Rewards()),
+        "rewards": asdict(rewards),
         "game_config": asdict(config),
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Cada tabuleiro roda num processo separado (usa vários núcleos da CPU).
     prob = args.start_prob if args.curriculum else 0.0
-    env = SubprocVecEnv([EnvFactory(args.board, args.obs, start_states, prob) for _ in range(args.n_envs)])
+    env = SubprocVecEnv([EnvFactory(args.board, args.obs, start_states, prob, rewards) for _ in range(args.n_envs)])
     env.seed(args.seed)  # sementes de TREINO: seed, seed+1, ... (sorteiam as partidas)
     model = build_model(env, args.masked, args.seed, **overrides)
     algo = "MaskablePPO" if args.masked else "PPO"

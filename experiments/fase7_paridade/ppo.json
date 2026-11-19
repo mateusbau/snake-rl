@@ -1,0 +1,19 @@
+{
+  "agent": "experiments/fase6_ppo/model.zip",
+  "games": 1000,
+  "imbalance_counts": {
+    "0": 133,
+    "1": 224,
+    "2": 206,
+    "3": 170,
+    "4": 117,
+    "5": 67,
+    "6": 38,
+    "7": 23,
+    "8": 12,
+    "9": 9,
+    "10": 1
+  },
+  "parity_possible": 357,
+  "ended_without_empty_cells": 13
+}

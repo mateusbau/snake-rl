@@ -195,6 +195,10 @@ class DQNAgent:
     def act(self, game: SnakeGame) -> int:
         return self.choose(self.observe(game), epsilon=0.0)  # avaliação: sem explorar
 
+    def action_scores(self, game: SnakeGame) -> np.ndarray:
+        """As 4 notas Q (a busca da Fase 7 usa para saber a 2ª, 3ª... opção)."""
+        return self.q_values(self.observe(game))
+
     # ---- salvar / carregar ----
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)

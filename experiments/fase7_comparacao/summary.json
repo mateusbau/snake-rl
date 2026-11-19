@@ -1,0 +1,196 @@
+{
+  "merged_from": [
+    "fase6_comparacao",
+    "fase7_eval_outros",
+    "fase7_eval_ppo_caca",
+    "fase7_eval_bfs_caca"
+  ],
+  "seeds_fingerprint": "158f340ed1ca",
+  "agents": {
+    "greedy": {
+      "games": 1000,
+      "fruits_mean": 18.18,
+      "fruits_median": 18.0,
+      "fruits_best": 40,
+      "fruits_std": 6.61,
+      "fruits_sem": 0.21,
+      "board_filled_mean": 0.2353,
+      "board_filled_max": 0.4778,
+      "steps_mean": 64.8,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "body": 0.501,
+        "obstacle": 0.407,
+        "wall": 0.092
+      }
+    },
+    "dqn_18": {
+      "games": 1000,
+      "fruits_mean": 41.0,
+      "fruits_median": 41.0,
+      "fruits_best": 69,
+      "fruits_std": 10.05,
+      "fruits_sem": 0.32,
+      "board_filled_mean": 0.4888,
+      "board_filled_max": 0.8,
+      "steps_mean": 250.9,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "body": 0.403,
+        "obstacle": 0.305,
+        "timeout": 0.176,
+        "wall": 0.116
+      }
+    },
+    "ppo": {
+      "games": 1000,
+      "fruits_mean": 46.59,
+      "fruits_median": 49.0,
+      "fruits_best": 67,
+      "fruits_std": 11.74,
+      "fruits_sem": 0.37,
+      "board_filled_mean": 0.551,
+      "board_filled_max": 0.7778,
+      "steps_mean": 456.0,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.831,
+        "body": 0.103,
+        "obstacle": 0.037,
+        "wall": 0.029
+      }
+    },
+    "ppo_seg": {
+      "games": 1000,
+      "fruits_mean": 43.38,
+      "fruits_median": 46.0,
+      "fruits_best": 67,
+      "fruits_std": 12.99,
+      "fruits_sem": 0.41,
+      "board_filled_mean": 0.5153,
+      "board_filled_max": 0.7778,
+      "steps_mean": 450.3,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.883,
+        "body": 0.065,
+        "obstacle": 0.027,
+        "wall": 0.025
+      },
+      "search": {
+        "vetoes": 1387
+      }
+    },
+    "ppo_timeout": {
+      "games": 1000,
+      "fruits_mean": 45.5,
+      "fruits_median": 48.0,
+      "fruits_best": 69,
+      "fruits_std": 12.23,
+      "fruits_sem": 0.39,
+      "board_filled_mean": 0.5389,
+      "board_filled_max": 0.8,
+      "steps_mean": 451.3,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.85,
+        "body": 0.083,
+        "obstacle": 0.048,
+        "wall": 0.019
+      }
+    },
+    "ppo_caca_fim": {
+      "games": 1000,
+      "fruits_mean": 54.91,
+      "fruits_median": 59.0,
+      "fruits_best": 69,
+      "fruits_std": 11.95,
+      "fruits_sem": 0.38,
+      "board_filled_mean": 0.6434,
+      "board_filled_max": 0.8,
+      "steps_mean": 862.4,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.803,
+        "body": 0.115,
+        "obstacle": 0.049,
+        "wall": 0.033
+      },
+      "search": {
+        "hunt_searches": 124577,
+        "hunt_found": 2920,
+        "endgame_searches": 9276,
+        "endgame_solved": 0,
+        "endgame_impossible": 9276
+      }
+    },
+    "bfs": {
+      "games": 1000,
+      "fruits_mean": 50.79,
+      "fruits_median": 53.0,
+      "fruits_best": 71,
+      "fruits_std": 11.69,
+      "fruits_sem": 0.37,
+      "board_filled_mean": 0.5977,
+      "board_filled_max": 0.8222,
+      "steps_mean": 496.4,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.845,
+        "obstacle": 0.083,
+        "body": 0.064,
+        "wall": 0.008
+      }
+    },
+    "bfs_fim": {
+      "games": 1000,
+      "fruits_mean": 50.79,
+      "fruits_median": 53.0,
+      "fruits_best": 72,
+      "fruits_std": 11.69,
+      "fruits_sem": 0.37,
+      "board_filled_mean": 0.5977,
+      "board_filled_max": 0.8333,
+      "steps_mean": 496.2,
+      "win_rate": 0.001,
+      "end_reasons": {
+        "timeout": 0.844,
+        "obstacle": 0.083,
+        "body": 0.064,
+        "wall": 0.008,
+        "win": 0.001
+      },
+      "search": {
+        "endgame_searches": 7389,
+        "endgame_solved": 1,
+        "endgame_impossible": 7388
+      }
+    },
+    "bfs_caca_fim": {
+      "games": 1000,
+      "fruits_mean": 55.35,
+      "fruits_median": 59.0,
+      "fruits_best": 72,
+      "fruits_std": 12.5,
+      "fruits_sem": 0.4,
+      "board_filled_mean": 0.6484,
+      "board_filled_max": 0.8333,
+      "steps_mean": 771.0,
+      "win_rate": 0.001,
+      "end_reasons": {
+        "timeout": 0.84,
+        "obstacle": 0.085,
+        "body": 0.066,
+        "wall": 0.008,
+        "win": 0.001
+      },
+      "search": {
+        "hunt_searches": 128982,
+        "hunt_found": 2126,
+        "endgame_searches": 14409,
+        "endgame_solved": 1,
+        "endgame_impossible": 14408
+      }
+    }
+  }
+}

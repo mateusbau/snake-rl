@@ -47,7 +47,10 @@ LABELS = {"random": "Aleatório", "safe_random": "Aleatório seguro", "greedy": 
           "bfs": "BFS + flood fill", "human": "Eu (humano)",
           "dqn_11": "DQN, 11 números", "dqn_18": "DQN, 18 números", "dqn_cnn": "DQN, tabuleiro (CNN)",
           "ppo": "PPO", "maskppo": "MaskablePPO", "ppo_cur": "PPO + currículo",
-          "maskppo_ent": "MaskablePPO, mais exploração"}
+          "maskppo_ent": "MaskablePPO, mais exploração",
+          "ppo_seg": "PPO + segurança", "ppo_fim": "PPO + fim de jogo", "ppo_busca": "PPO + segurança + fim",
+          "bfs_fim": "BFS + fim de jogo", "bfs_caca": "BFS + caça", "ppo_caca": "PPO + caça",
+          "bfs_caca_fim": "BFS + caça + fim", "ppo_caca_fim": "PPO + caça + fim", "ppo_timeout": "PPO, tempo esgotado = -1"}
 
 
 def load_model(spec: str):
@@ -63,6 +66,24 @@ def load_model(spec: str):
         from agents.dqn import DQNAgent
 
         agent = DQNAgent.load(ROOT / path)
+    agent.name = name
+    return name, agent
+
+
+def load_wrapped(spec: str):
+    """"nome=base:camadas" -> agente com busca por cima (Fase 7).
+
+    base = nome de agente (bfs...) ou caminho de rede (.pt/.zip);
+    camadas = "seguranca", "caca", "fim" ou combinações ("caca,fim"), aplicadas nessa ordem.
+    Ex.: ppo_busca=experiments/fase6_ppo/model.zip:seguranca,fim
+    """
+    from agents.search import EndgameAgent, HunterAgent, SafetyAgent
+
+    name, _, rest = spec.partition("=")
+    base_spec, _, layers = rest.rpartition(":")
+    agent = AGENTS[base_spec]() if base_spec in AGENTS else load_model(f"{name}={base_spec}")[1]
+    for layer in layers.split(","):
+        agent = {"seguranca": SafetyAgent, "caca": HunterAgent, "fim": EndgameAgent}[layer](agent)
     agent.name = name
     return name, agent
 
@@ -157,13 +178,15 @@ def plot(summaries: dict[str, dict], human: dict | None, path: Path, title: str)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--agents", nargs="+", default=list(AGENTS), choices=list(AGENTS))
+    parser.add_argument("--agents", nargs="*", default=list(AGENTS), choices=list(AGENTS))
     parser.add_argument("--games", type=int, default=1000, help="usa as N primeiras sementes oficiais")
     parser.add_argument("--out", default="fase3_baselines", help="pasta dentro de experiments/")
     parser.add_argument("--board", choices=list(BOARDS), default="full",
                         help="full = jogo oficial; mini = 5×5 de treino (sem humano nem gráfico)")
     parser.add_argument("--model", nargs="*", default=[], metavar="NOME=CAMINHO",
                         help="redes treinadas (.pt) para avaliar junto, ex.: dqn=experiments/x/model.pt")
+    parser.add_argument("--wrap", nargs="*", default=[], metavar="NOME=BASE:CAMADAS",
+                        help="agente + busca (Fase 7), ex.: ppo_busca=experiments/fase6_ppo/model.zip:seguranca,fim")
     parser.add_argument("--chart", default=str(CHART_PATH.relative_to(ROOT)), help="onde salvar o gráfico")
     parser.add_argument("--title", default="Agentes sem ML x humano", help="título do gráfico")
     parser.add_argument("--no-chart", action="store_true")
@@ -175,13 +198,17 @@ def main() -> None:
     (out / "replays").mkdir(parents=True, exist_ok=True)
     print(f"Avaliando {len(seeds)} partidas por agente (sementes {seeds_fingerprint(seeds)})")
 
-    players = [(name, AGENTS[name]()) for name in args.agents] + [load_model(m) for m in args.model]
+    players = [(name, AGENTS[name]()) for name in args.agents] + [load_model(m) for m in args.model] \
+        + [load_wrapped(w) for w in args.wrap]
     summaries, seconds = {}, {}
     for name, agent in players:
         start = time.perf_counter()
         results = evaluate(agent, seeds, config, progress=True)
         seconds[name] = round(time.perf_counter() - start, 1)
         summaries[name] = summarize(results)
+        if hasattr(agent, "stats"):  # agentes com busca (Fase 7) contam o que a busca fez
+            summaries[name]["search"] = agent.stats()
+            print(f"{name:>12}: busca {agent.stats()}")
         save_games_csv(results, out / f"{name}_games.csv")
         best = save_best_replay(name, results, out / "replays" / f"{name}_best.json", config)
         s = summaries[name]

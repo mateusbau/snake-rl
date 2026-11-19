@@ -1,0 +1,47 @@
+Avaliando 1000 partidas por agente (sementes 158f340ed1ca)
+  ppo_timeout: 100/1000 partidas (18 s)
+  ppo_timeout: 200/1000 partidas (36 s)
+  ppo_timeout: 300/1000 partidas (54 s)
+  ppo_timeout: 400/1000 partidas (72 s)
+  ppo_timeout: 500/1000 partidas (92 s)
+  ppo_timeout: 600/1000 partidas (110 s)
+  ppo_timeout: 700/1000 partidas (128 s)
+  ppo_timeout: 800/1000 partidas (147 s)
+  ppo_timeout: 900/1000 partidas (166 s)
+  ppo_timeout: 1000/1000 partidas (184 s)
+ ppo_timeout: média 45.50 | mediana 48 | melhor 69 (seed 992994634) | vitórias 0.0% | 184.3 s
+  ppo_seg: 100/1000 partidas (18 s)
+  ppo_seg: 200/1000 partidas (36 s)
+  ppo_seg: 300/1000 partidas (54 s)
+  ppo_seg: 400/1000 partidas (73 s)
+  ppo_seg: 500/1000 partidas (91 s)
+  ppo_seg: 600/1000 partidas (109 s)
+  ppo_seg: 700/1000 partidas (128 s)
+  ppo_seg: 800/1000 partidas (145 s)
+  ppo_seg: 900/1000 partidas (164 s)
+  ppo_seg: 1000/1000 partidas (182 s)
+     ppo_seg: busca {'vetoes': 1387}
+     ppo_seg: média 43.38 | mediana 46 | melhor 67 (seed 1355824174) | vitórias 0.0% | 181.8 s
+  bfs_fim: 100/1000 partidas (10 s)
+  bfs_fim: 200/1000 partidas (21 s)
+  bfs_fim: 300/1000 partidas (31 s)
+  bfs_fim: 400/1000 partidas (40 s)
+  bfs_fim: 500/1000 partidas (50 s)
+  bfs_fim: 600/1000 partidas (60 s)
+  bfs_fim: 700/1000 partidas (69 s)
+  bfs_fim: 800/1000 partidas (79 s)
+  bfs_fim: 900/1000 partidas (88 s)
+  bfs_fim: 1000/1000 partidas (98 s)
+     bfs_fim: busca {'endgame_searches': 7389, 'endgame_solved': 1, 'endgame_impossible': 7388}
+     bfs_fim: média 50.79 | mediana 53 | melhor 72 (seed 1283531699) | vitórias 0.1% | 97.5 s
+
+| Jogador | Partidas | Média | Mediana | Melhor | % tabuleiro (média / máx) | Vitórias | Como terminou |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Eu (humano) | 20 | 16.40 | 14 | 34 | 21.6% / 41.1% | 0.0% | obstáculo 85%, parede 15% |
+| PPO + segurança | 1000 | 43.38 ± 0.82 | 46 | 67 | 51.5% / 77.8% | 0.0% | tempo 88%, corpo 6%, obstáculo 3%, parede 2% |
+| PPO, tempo esgotado = -1 | 1000 | 45.50 ± 0.78 | 48 | 69 | 53.9% / 80.0% | 0.0% | tempo 85%, corpo 8%, obstáculo 5%, parede 2% |
+| BFS + fim de jogo | 1000 | 50.79 ± 0.74 | 53 | 72 | 59.8% / 83.3% | 0.1% | tempo 84%, obstáculo 8%, corpo 6%, parede 1%, vitória 0% |
+
+± = 2 erros padrão (intervalo de ~95% para a média). Agentes: as mesmas sementes oficiais. Humano: 20 partidas oficiais da Fase 2 (outras sementes).
+
+Resultados em experiments\fase7_eval_outros

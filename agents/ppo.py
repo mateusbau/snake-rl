@@ -26,13 +26,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import torch
 from sb3_contrib import MaskablePPO
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from snake.boards import BOARDS
 from snake.env import SnakeGame
-from snake.gym_env import OBSERVERS, SnakeEnv, action_mask
+from snake.gym_env import OBSERVERS, Rewards, SnakeEnv, action_mask
 
 # Hiperparâmetros padrão do projeto (cada mudança = um experimento, regra 4).
 PPO_DEFAULTS = dict(
@@ -52,12 +53,14 @@ class EnvFactory:
     """Cria um SnakeEnv. É uma classe (e não uma lambda) porque os ambientes em
     processos separados recebem a "receita" por pickle, e lambdas não são picláveis."""
 
-    def __init__(self, board: str, obs_type: str, start_states: list[dict] | None = None, start_prob: float = 0.0):
+    def __init__(self, board: str, obs_type: str, start_states: list[dict] | None = None, start_prob: float = 0.0,
+                 rewards: Rewards | None = None):
         self.board, self.obs_type = board, obs_type
         self.start_states, self.start_prob = start_states, start_prob
+        self.rewards = rewards
 
     def __call__(self) -> SnakeEnv:
-        return SnakeEnv(BOARDS[self.board], obs_type=self.obs_type,
+        return SnakeEnv(BOARDS[self.board], obs_type=self.obs_type, rewards=self.rewards,
                         start_states=self.start_states, start_prob=self.start_prob)
 
 
@@ -95,6 +98,18 @@ class PPOAgent:
         else:
             action, _ = self.model.predict(obs, deterministic=True)
         return int(action)
+
+    def action_scores(self, game: SnakeGame):
+        """Probabilidade de cada uma das 4 ações (já com a máscara, se houver).
+        Usado pela busca da Fase 7 para saber a 2ª, 3ª... opção da rede."""
+        policy = self.model.policy
+        obs_tensor, _ = policy.obs_to_tensor(self.observe(game))
+        with torch.no_grad():
+            if self.masked:
+                dist = policy.get_distribution(obs_tensor, action_masks=action_mask(game))
+            else:
+                dist = policy.get_distribution(obs_tensor)
+            return dist.distribution.probs[0].cpu().numpy()
 
     # ---- salvar / carregar: o .zip do SB3 + um .json com o que o projeto precisa ----
     def save(self, path: Path) -> None:

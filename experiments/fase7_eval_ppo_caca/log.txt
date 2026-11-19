@@ -1,0 +1,22 @@
+Avaliando 1000 partidas por agente (sementes 158f340ed1ca)
+  ppo_caca_fim: 100/1000 partidas (164 s)
+  ppo_caca_fim: 200/1000 partidas (444 s)
+  ppo_caca_fim: 300/1000 partidas (595 s)
+  ppo_caca_fim: 400/1000 partidas (806 s)
+  ppo_caca_fim: 500/1000 partidas (1014 s)
+  ppo_caca_fim: 600/1000 partidas (1159 s)
+  ppo_caca_fim: 700/1000 partidas (1421 s)
+  ppo_caca_fim: 800/1000 partidas (1568 s)
+  ppo_caca_fim: 900/1000 partidas (1734 s)
+  ppo_caca_fim: 1000/1000 partidas (1962 s)
+ppo_caca_fim: busca {'hunt_searches': 124577, 'hunt_found': 2920, 'endgame_searches': 9276, 'endgame_solved': 0, 'endgame_impossible': 9276}
+ppo_caca_fim: média 54.91 | mediana 59 | melhor 69 (seed 849634149) | vitórias 0.0% | 1962.1 s
+
+| Jogador | Partidas | Média | Mediana | Melhor | % tabuleiro (média / máx) | Vitórias | Como terminou |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Eu (humano) | 20 | 16.40 | 14 | 34 | 21.6% / 41.1% | 0.0% | obstáculo 85%, parede 15% |
+| PPO + caça + fim | 1000 | 54.91 ± 0.76 | 59 | 69 | 64.3% / 80.0% | 0.0% | tempo 80%, corpo 12%, obstáculo 5%, parede 3% |
+
+± = 2 erros padrão (intervalo de ~95% para a média). Agentes: as mesmas sementes oficiais. Humano: 20 partidas oficiais da Fase 2 (outras sementes).
+
+Resultados em experiments\fase7_eval_ppo_caca

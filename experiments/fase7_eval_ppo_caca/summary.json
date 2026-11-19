@@ -1,0 +1,37 @@
+{
+  "created_at": "2026-11-19T00:14:16",
+  "board": "full",
+  "eval_master_seed": 20261118,
+  "games": 1000,
+  "seeds_fingerprint": "158f340ed1ca",
+  "seconds": {
+    "ppo_caca_fim": 1962.1
+  },
+  "agents": {
+    "ppo_caca_fim": {
+      "games": 1000,
+      "fruits_mean": 54.91,
+      "fruits_median": 59.0,
+      "fruits_best": 69,
+      "fruits_std": 11.95,
+      "fruits_sem": 0.38,
+      "board_filled_mean": 0.6434,
+      "board_filled_max": 0.8,
+      "steps_mean": 862.4,
+      "win_rate": 0.0,
+      "end_reasons": {
+        "timeout": 0.803,
+        "body": 0.115,
+        "obstacle": 0.049,
+        "wall": 0.033
+      },
+      "search": {
+        "hunt_searches": 124577,
+        "hunt_found": 2920,
+        "endgame_searches": 9276,
+        "endgame_solved": 0,
+        "endgame_impossible": 9276
+      }
+    }
+  }
+}

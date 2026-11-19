@@ -10,7 +10,7 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 
 ![Minha partida recorde](docs/media/fase2_recorde_humano.gif)
 
-**Agentes (Fases 3 a 6), 1.000 partidas cada nas mesmas sementes:**
+**Agentes (Fases 3 a 7), 1.000 partidas cada nas mesmas sementes:**
 
 | Jogador | Média de frutas | Melhor | Vitórias |
 |---|---:|---:|---:|
@@ -20,7 +20,9 @@ obstáculos permanentes (inspirada no Snake do Google). Projeto de portfólio.
 | Guloso | 18,18 | 40 | 0% |
 | DQN, 18 números (Fase 5) | 41,00 | 69 | 0% |
 | PPO (Fase 6) | 46,59 | 67 | 0% |
-| BFS + flood fill | **50,79** | 71 | 0% |
+| BFS + flood fill | 50,79 | 71 | 0% |
+| PPO + caça + fim (Fase 7) | 54,91 | 69 | 0% |
+| BFS + caça + fim (Fase 7) | **55,35** | 72 | **0,1%** |
 
 ![Comparação dos agentes](docs/media/fase3_comparacao.png)
 
@@ -49,6 +51,15 @@ sem arriscar as últimas frutas. Zerar o jogo é o desafio da Fase 7.
 ![PPO quase zerando](docs/media/fase6_ppo_melhor.gif)
 
 ![Comparação: Fases 3 a 6](docs/media/fase6_comparacao.png)
+
+**Rede + busca (Fase 7): a primeira vitória.** Uma conta de tabuleiro de xadrez mostra que
+em ~64% das partidas zerar é **impossível** (o corpo alterna as cores, e os obstáculos
+desequilibram as casas livres). Com uma busca que caça caminhos mais longos até a fruta, o PPO
+sobe de 46,6 para 54,9 frutas. E um solucionador exato de fim de jogo zerou 1 das 1.000 partidas.
+
+![A primeira vitória](docs/media/fase7_vitoria.gif)
+
+![Rede + busca](docs/media/fase7_comparacao.png)
 
 ## Como rodar (Windows / PowerShell)
 
@@ -85,6 +96,9 @@ py -3.12 -m venv .venv
 
 # 11. Treinar um PPO (Fase 6), 8 tabuleiros em paralelo (~15 min)
 .venv\Scripts\python.exe scripts\train_ppo.py --steps 4000000 --out teste_ppo
+
+# 12. Avaliar um agente com busca por cima (Fase 7): 100 partidas, ~3 min
+.venv\Scripts\python.exe scripts\evaluate.py --agents --wrap bfs_caca_fim=bfs:caca,fim --games 100 --out teste_busca --no-chart
 ```
 
 ## Usando o motor do jogo
